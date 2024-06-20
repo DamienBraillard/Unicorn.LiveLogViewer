@@ -1,0 +1,12 @@
+<Project>
+  <PropertyGroup>
+    <!-- Samples are not part of the NuGet package -->
+    <IsPackable>false</IsPackable>
+    <!-- Disables warnings about non-packable projects that could be packaged -->
+    <WarnOnPackingNonPackableProject>false</WarnOnPackingNonPackableProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage" />
+  </ItemGroup>
+</Project>

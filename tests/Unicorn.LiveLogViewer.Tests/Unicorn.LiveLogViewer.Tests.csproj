@@ -1,0 +1,148 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), '..', '..', 'tools', 'Custom.Tasks.targets'))"/>
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+    <IsPackable>false</IsPackable>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Warnings">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>IO0001, IO0002, IO0003, IO0004, IO0005, IO0006, IO0007, IO0008, IO0009</NoWarn>
+    <!-- CS1030: Explicit #warning warnings -->
+    <WarningsNotAsErrors>CS1030, CS0618</WarningsNotAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup Label="NuGet Restore">
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <!-- https://devblogs.microsoft.com/nuget/enable-repeatable-package-restores-using-a-lock-file/#how-does-nuget-use-the-lock-file -->
+    <RestoreLockedMode Condition="$(ContinuousIntegrationBuild) == 'true'">true</RestoreLockedMode>
+  </PropertyGroup>
+
+  <ItemGroup Label="Internal types visibility">
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+  </ItemGroup>
+
+  <ItemGroup Label="IDE global suppressions">
+    <AssemblyAttribute Include="System.Diagnostics.CodeAnalysis.SuppressMessage">
+      <_Parameter1>ReSharper</_Parameter1>
+      <_Parameter2>AssignNullToNotNullAttribute</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup Label="Output files">
+    <Content Include="../xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!--
+  ==================================================================================================
+  == References
+  ==================================================================================================
+  -->
+  
+  <ItemGroup>
+    <PackageReference Include="coverlet.msbuild" Version="6.0.3" />
+    <PackageReference Include="FluentAssertions" Version="7.0.0" />
+    <PackageReference Include="GitHubActionsTestLogger" Version="2.4.1" PrivateAssets="All" />
+    <PackageReference Include="MartinCostello.Logging.XUnit" Version="0.5.1" />
+    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="9.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="NSubstitute" Version="5.3.0" />
+    <PackageReference Include="NSubstitute.Analyzers.CSharp" Version="1.0.17" PrivateAssets="All" />
+    <PackageReference Include="ReportGenerator" Version="5.4.3" PrivateAssets="All" />
+    <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="21.2.1" />
+    <PackageReference Include="TestableIO.System.IO.Abstractions.Extensions" Version="2.2.5" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="Xunit.Combinatorial" Version="1.6.24" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.0" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="8.0.6" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="9.0.0" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Unicorn.LiveLogViewer\Unicorn.LiveLogViewer.csproj" />
+  </ItemGroup>
+  
+  <!--
+  ==================================================================================================
+  == Test report and coverage processing
+  ==================================================================================================
+  -->
+
+  <ItemGroup>
+    <None Remove="results\**" />
+  </ItemGroup>
+
+  <!-- Test results & coverage setup -->
+  <PropertyGroup Label="Test results and coverage">
+    <!-- Enable code coverage collection -->
+    <CollectCoverage>true</CollectCoverage>
+    <!-- Sets the minimum coverage (in percentage) -->
+    <Threshold>95</Threshold>
+    <ThresholdType>line</ThresholdType>
+    <!-- Exclude code marked with specific attributes from coverage -->
+    <ExcludeByAttribute>ObsoleteAttribute,GeneratedCodeAttribute,CompilerGeneratedAttribute,ExcludeFromCodeCoverage</ExcludeByAttribute>
+
+    <!-- Sets the test results directory -->
+    <VSTestResultsDirectory>$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), 'results', $(TargetFramework)))</VSTestResultsDirectory>
+    <VSTestResultsDirectory Condition="$(ContinuousIntegrationBuild) == 'true'">$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), 'results'))</VSTestResultsDirectory>
+    <!-- Sets up the test results loggers -->
+    <VSTestLogger>
+      Console%3Bverbosity=normal;
+      html%3BLogFileName=TestResultsReport.html
+    </VSTestLogger>
+    <VSTestLogger Condition="$(ContinuousIntegrationBuild) == 'true'">
+      GitHubActions%3Bsummary.includePassedTests=true%3Bsummary.includeSkippedTests=true%3Bsummary.includeNotFoundTests=true;
+    </VSTestLogger>
+    <!-- Defines the coverage output path -->
+    <CoverageOutputDir>$([System.IO.Path]::Combine($(VSTestResultsDirectory), 'coverage'))</CoverageOutputDir>
+    <!-- Save code coverage analysis in the coverage directory -->
+    <CoverletOutputFormat>json,opencover</CoverletOutputFormat>
+    <CoverletOutput>$([MSBuild]::EnsureTrailingSlash($(CoverageOutputDir)))</CoverletOutput>
+    <!-- Ensure that sequential runs (multiple test projects) are merged together -->
+    <MergeWith>$([System.IO.Path]::Combine($(CoverageOutputDir), 'coverage.$(TargetFramework).json'))</MergeWith>
+  </PropertyGroup>
+
+  <!-- Action run before all tests -->
+  <Target Name="GlobalTestPreRun" BeforeTargets="VSTest" Condition="$(TargetFramework) == ''">
+    <!-- Remove all test result files (only ONCE before the target framework specific runs) -->
+    <ItemGroup>
+      <_TestResultsFilesToDelete Include="$(VSTestResultsDirectory)\**"/>
+    </ItemGroup>
+    <Delete Files="@(_TestResultsFilesToDelete)">
+      <Output TaskParameter="DeletedFiles" ItemName="_TestResultsFilesDeleted"/>
+    </Delete>
+    <Message Condition="'@(_TestResultsFilesDeleted)' != ''" Importance="normal" Text="Cleaned up previous test results files: @(_TestResultsFilesDeleted)" />
+    <!-- Add a global title to the Github summary  -->
+    <WriteToGitHubSummary Condition="$(ContinuousIntegrationBuild) == 'true'" Text="# ❔ &lt;b&gt;Test and coverage results&lt;/b&gt;"/>
+  </Target>
+
+  <!-- Action run before each framework test run -->
+  <Target Name="FrameworkTestPreRun" BeforeTargets="VSTest" Condition="$(TargetFramework) != ''">
+    <!-- Add a title to the Github summary for each framework run -->
+    <WriteToGitHubSummary Condition="$(ContinuousIntegrationBuild) == 'true'" Text="## ➡️ $(TargetFramework)"/>
+  </Target>
+
+  <!-- Generate coverage report  -->
+  <Target Name="CoverageReport" AfterTargets="GenerateCoverageResult" >
+    <ReportGenerator
+        ReportFiles="$([System.IO.Path]::Combine($(CoverageOutputDir), 'coverage.$(TargetFramework).opencover.xml'))"
+        TargetDirectory="$(CoverageOutputDir)"
+        ReportTypes="HtmlInline;MarkdownSummary" />
+    <!-- Inform user where the reports are (NON CI run) or push coverage report to GitHub Summary (CI run) -->
+    <Message Condition="$(ContinuousIntegrationBuild) != 'true'" Importance="high" Text="ℹ️ Test result reports location: $(VSTestResultsDirectory)" />
+    <SendCoverageToGitHubSummary
+        Condition="$(ContinuousIntegrationBuild) == 'true'"
+        Title="Code Coverage ($(TargetFramework))"
+        InputFile="$([System.IO.Path]::Combine($(CoverageOutputDir), 'Summary.md'))" />
+  </Target>
+  
+</Project>

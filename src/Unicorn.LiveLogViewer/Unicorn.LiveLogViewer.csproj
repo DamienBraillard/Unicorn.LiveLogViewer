@@ -1,0 +1,112 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+
+    <IsPackable>true</IsPackable>
+
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <DebugType>embedded</DebugType>
+    <EmbedAllSources>true</EmbedAllSources>
+
+    <AnalysisLevel>latest-all</AnalysisLevel>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Wanings">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!--
+    CA2007: Do not directly await a Task
+    -->
+    <NoWarn>CA2007</NoWarn>
+    <!--
+    CS1030: #warning warnings
+    CS0618: A referenced member is marked as obsolete
+    -->
+    <WarningsNotAsErrors>CS1030;CA2007</WarningsNotAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup Label="AOT" Condition="$(TargetFramework) != 'net6.0'">
+    <IsAotCompatible>true</IsAotCompatible>
+    <StripSymbols>false</StripSymbols>
+    <EnableRequestDelegateGenerator>true</EnableRequestDelegateGenerator>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Assembly Info and Versioning">
+    <Company>Soft Unicorn Sàrl</Company>
+    <Product>Unicorn Live Log VIewer</Product>
+    <Copyright>Copyright © Soft Unicorn Sàrl 2024-$([System.DateTime]::Now.Year)</Copyright>
+
+    <MinVerDefaultPreReleaseIdentifiers>preview</MinVerDefaultPreReleaseIdentifiers>
+  </PropertyGroup>
+
+  <ItemGroup Label="Assembly Info">
+    <!-- Add build date to assembly metadata to be easily retrieved for display (in debug use today to avoid unnecessary recompiles) -->
+    <AssemblyMetadata Include="BuildDate" Value="$([System.DateTime]::Today.ToString('O'))" Condition="$(Configuration) == 'Debug'" />
+    <AssemblyMetadata Include="BuildDate" Value="$([System.DateTime]::Now.ToString('O'))" Condition="$(Configuration) != 'Debug'" />
+  </ItemGroup>
+
+  <PropertyGroup Label="Packaging Metadata">
+    <!--    <PackageIcon>icon.png</PackageIcon>-->
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>logging logviewer aspnet</PackageTags>
+    <PackageProjectUrl>https://github.com/DamienBraillard/Unicorn.LiveLogViewer</PackageProjectUrl>
+    <PackageReleaseNotes>https://github.com/DamienBraillard/Unicorn.LiveLogViewer/blob/master/CHANGELOG.md</PackageReleaseNotes>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup Label="Packaging Metadata">
+    <!--    <None Include="../resources/$(PackageIcon)" Pack="true" PackagePath="" Visible="false" />-->
+    <None Include="../../$(PackageReadmeFile)" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <PropertyGroup Label="NuGet restore">
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <!-- https://devblogs.microsoft.com/nuget/enable-repeatable-package-restores-using-a-lock-file/#how-does-nuget-use-the-lock-file -->
+    <RestoreLockedMode Condition="$(ContinuousIntegrationBuild) == 'true'">true</RestoreLockedMode>
+  </PropertyGroup>
+
+  <ItemGroup Label="Make internal types visible to unit tests">
+    <!-- Make internal types visible to its test assembly ! -->
+    <InternalsVisibleTo Include="$(AssemblyName).Tests" />
+    <!-- Make internal types visible to NSubstitute -->
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+  </ItemGroup>
+
+  <!--
+  ==================================================================================================
+  == References
+  ==================================================================================================
+  -->
+
+  <ItemGroup Label="Nuget packages">
+    <PackageReference Include="MinVer" Version="6.0.0" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!--
+  ==================================================================================================
+  == Targets
+  ==================================================================================================
+  -->
+
+  <Target Label="Embed Xml doc as embedded resource"  Name="EmbedDocumentation" BeforeTargets="PrepareForBuild">
+    <ItemGroup>
+      <EmbeddedResource Include="@(DocFileItem)">
+        <LogicalName>documentation.xml</LogicalName>
+      </EmbeddedResource>
+    </ItemGroup>
+  </Target>
+
+  <Target Label="Validates the NuGet package after packaging" Name="ValidateNuGetPackage" AfterTargets="Pack">
+    <!-- For reference: the file `.config/dotnet-tools.json` was created by running `dotnet new tool-manifest && dotnet tool install dotnet-validate` -->
+    <Exec Command="dotnet tool restore" />
+    <Exec Command="dotnet validate package local $([MSBuild]::EnsureTrailingSlash($(PackageOutputPath)))$(PackageId).$(PackageVersion).nupkg" EnvironmentVariables="DOTNET_ROLL_FORWARD=LatestMajor" />
+  </Target>
+
+  <ItemGroup Label="Framework references">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  
+</Project>

@@ -1,0 +1,15 @@
+# IDE's
+.idea/
+.vs/
+*.user
+
+# Temporary files
+~$*
+
+# Test results files
+tests/*/results/
+
+# Compiled output
+bin/
+obj/
+*.nupkg
