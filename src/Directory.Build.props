@@ -1,0 +1,63 @@
+<Project>
+
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <!-- Enable C# 8.0 nullable types for non unit tests projects -->
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- Use embedded pdb to make sure we have file information and line numbers in stack traces even when
+         packaging as single file. See https://github.com/dotnet/runtime/issues/34187#issuecomment-604955845 -->
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Assembly Info">
+    <Company>Soft Unicorn Sàrl</Company>
+    <Product>Unicorn Live Log VIewer</Product>
+    <Copyright>Copyright © Soft Unicorn Sàrl 2024-$([System.DateTime]::Now.Year)</Copyright>
+    <Version>$(CIAutoVersion)</Version>
+    <Version Condition="'$(Version)' == ''">0.0.0</Version>
+    <InformationalVersion Condition="$(Configuration) != 'Release'">$(Version)-alpha</InformationalVersion>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- CS1030: Explicit #warning warnings -->
+    <WarningsNotAsErrors>CS1030, CS0618</WarningsNotAsErrors>
+  </PropertyGroup>
+
+  <Target Name="EmbedDocumentation" BeforeTargets="PrepareForBuild">
+    <ItemGroup>
+      <EmbeddedResource Include="@(DocFileItem)">
+        <LogicalName>documentation.xml</LogicalName>
+      </EmbeddedResource>
+    </ItemGroup>
+  </Target>
+
+  <ItemGroup>
+    <PackageReference Include="TestableIO.System.IO.Abstractions.Analyzers" Version="2022.0.0" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!-- So that the AddSourceRevisionToInformationalVersion target is called and we have the git commit hash in the InformationalVersion property -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Build.Tasks.Git" Version="8.0.0" PrivateAssets="all" />
+  </ItemGroup>
+  <Target Name="_InitializeSourceControlInformationFromSourceControlManager"
+          DependsOnTargets="InitializeSourceControlInformationFromSourceControlManager"
+          BeforeTargets="InitializeSourceControlInformation" />
+
+  <ItemGroup>
+    <!-- Add build date to assembly metadata to be easily retrieved for display -->
+    <AssemblyMetadata Include="BuildDate" Condition="$(Configuration) == 'Debug'">
+      <!-- Using Today instead of Now in order to improve build times in Debug configuration because each BuildDate changes forces a recompilation -->
+      <Value>$([System.DateTime]::Today.ToString("O"))</Value>
+    </AssemblyMetadata>
+    <AssemblyMetadata Include="BuildDate" Condition="$(Configuration) != 'Debug'">
+      <Value>$([System.DateTime]::Now.ToString("O"))</Value>
+    </AssemblyMetadata>
+    <!-- Make internal types visible to its test assembly ! -->
+    <InternalsVisibleTo Include="$(AssemblyName).Tests" />
+    <!-- Make internal types visible to NSubstitute -->
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+  </ItemGroup>
+
+</Project>

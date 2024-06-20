@@ -1,0 +1,41 @@
+<Project>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <IsPackable>false</IsPackable>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>IO0001, IO0002, IO0003, IO0004, IO0005, IO0006, IO0007, IO0008, IO0009</NoWarn>
+    <!-- CS1030: Explicit #warning warnings -->
+    <WarningsNotAsErrors>CS1030, CS0618</WarningsNotAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+    <AssemblyAttribute Include="System.Diagnostics.CodeAnalysis.SuppressMessage">
+      <_Parameter1>ReSharper</_Parameter1>
+      <_Parameter2>AssignNullToNotNullAttribute</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="6.12.0" />
+    <PackageReference Include="MartinCostello.Logging.XUnit" Version="0.3.0" />
+    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="8.1.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0"/>
+    <PackageReference Include="NSubstitute" Version="5.1.0"/>
+    <PackageReference Include="NSubstitute.Analyzers.CSharp" Version="1.0.16" />
+    <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="20.0.15" />
+    <PackageReference Include="TestableIO.System.IO.Abstractions.Extensions" Version="2.2.1" />
+    <PackageReference Include="Verify.Xunit" Version="23.1.0" />
+    <PackageReference Include="xunit" Version="2.6.6" />
+    <PackageReference Include="Xunit.Combinatorial" Version="1.6.24" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.6" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="../xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

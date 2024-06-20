@@ -1,0 +1,11 @@
+# IDE's
+.idea/
+.vs/
+*.user
+
+# Temporary files
+~$*
+
+# Compiled output
+bin/
+obj/
