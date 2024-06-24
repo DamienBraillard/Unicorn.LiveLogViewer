@@ -10,4 +10,8 @@
     <StripSymbols>false</StripSymbols>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Unicorn.LiveLogViewer\Unicorn.LiveLogViewer.csproj" />
+  </ItemGroup>
+
 </Project>
