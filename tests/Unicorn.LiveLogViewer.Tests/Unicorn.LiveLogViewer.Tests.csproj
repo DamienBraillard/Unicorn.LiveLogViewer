@@ -4,4 +4,14 @@
     <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <DefineConstants Condition="$(TargetFramework) == 'net6.0'">$(DefineConstants);NET60</DefineConstants>
+    <DefineConstants Condition="$(TargetFramework) == 'net7.0'">$(DefineConstants);NET70</DefineConstants>
+    <DefineConstants Condition="$(TargetFramework) == 'net8.0'">$(DefineConstants);NET80</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Unicorn.LiveLogViewer\Unicorn.LiveLogViewer.csproj" />
+  </ItemGroup>
+
 </Project>
