@@ -52,18 +52,7 @@ public static class LiveLogViewerApplicationBuilderExtensions
     /// <exception cref="ArgumentException"><paramref name="basePath"/> does not start with a <c>'/'</c>.</exception>
     public static IApplicationBuilder UseLiveLogViewer(this IApplicationBuilder app, string basePath = "/logViewer")
     {
-        var dispatcher = SetupDispatcher(app.ApplicationServices, basePath);
-
-        app.Use(next =>
-        {
-            return async context =>
-            {
-                await dispatcher.DispatchAsync(context);
-                await next(context);
-            };
-        });
-
-        return app;
+        return app.UseRouting().UseEndpoints(endpoints => endpoints.MapLiveLogViewer(basePath));
     }
 
     /// <summary>
