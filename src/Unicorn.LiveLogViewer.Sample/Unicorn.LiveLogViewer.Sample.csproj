@@ -4,4 +4,10 @@
     <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup Label="AOT" >
+    <PublishAot>true</PublishAot>
+    <IsAotCompatible>true</IsAotCompatible>
+    <StripSymbols>false</StripSymbols>
+  </PropertyGroup>
+
 </Project>
