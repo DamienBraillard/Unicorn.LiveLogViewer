@@ -7,9 +7,6 @@ namespace Unicorn.LiveLogViewer.Serialization;
 /// </summary>
 internal class LogHttpWriterFactory : ILogHttpWriterFactory
 {
-    /// <inheritdoc />
-    public ILogHttpWriter Create(Stream stream)
-    {
-        throw new System.NotImplementedException();
-    }
+    /// <inheritdoc/>
+    public ILogHttpWriter Create(Stream stream) => new LogHttpWriter(stream);
 }
