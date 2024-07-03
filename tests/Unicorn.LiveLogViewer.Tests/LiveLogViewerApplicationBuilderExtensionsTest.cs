@@ -138,6 +138,7 @@ public class LiveLogViewerApplicationBuilderExtensionsTest
     public void UseLiveLogViewer_BasePathNotSpecified_UpdatesTheOptions()
     {
         // Arrange
+        _serviceCollection.AddRouting();
         _serviceCollection.AddLiveLogViewer();
 
         // Act
@@ -154,6 +155,7 @@ public class LiveLogViewerApplicationBuilderExtensionsTest
     public void UseLiveLogViewer_BasePathSpecified_UpdatesTheOptions(string basePath, string expected)
     {
         // Arrange
+        _serviceCollection.AddRouting();
         _serviceCollection.AddSingleton<LogViewerOptions>();
         _serviceCollection.AddSingleton(Substitute.For<ILogViewerRequestDispatcher>());
 
@@ -171,6 +173,7 @@ public class LiveLogViewerApplicationBuilderExtensionsTest
     {
         // Arrange
         var dispatcher = Substitute.For<ILogViewerRequestDispatcher>();
+        _serviceCollection.AddRouting();
         _serviceCollection.AddSingleton<LogViewerOptions>();
         _serviceCollection.AddSingleton(dispatcher);
 
@@ -198,6 +201,7 @@ public class LiveLogViewerApplicationBuilderExtensionsTest
     public void UseLiveLogViewer_NoState_ReturnsApplicationBuilder()
     {
         // Arrange
+        _serviceCollection.AddRouting();
         _serviceCollection.AddSingleton<LogViewerOptions>();
         _serviceCollection.AddSingleton<ILogViewerRequestDispatcher, LogViewerRequestDispatcher>();
         _serviceCollection.AddSingleton(Substitute.For<ILogViewerRequestHandler>());

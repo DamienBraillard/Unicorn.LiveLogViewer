@@ -2,10 +2,10 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Unicorn.LiveLogViewer.RequestProcessing;
+using Unicorn.LiveLogViewer.Serialization;
+using Unicorn.LiveLogViewer.Sources;
 
 namespace Unicorn.LiveLogViewer;
 
@@ -25,10 +25,12 @@ public static class LiveLogViewerApplicationBuilderExtensions
         Action<IServiceProvider, LogViewerOptions>? optionsBuilder = null)
     {
         // Required dependencies
-        services.TryAddSingleton<IContentTypeProvider, FileExtensionContentTypeProvider>();
+        services.AddSingleton<ILogProvider>(NullLogProvider.Default);
+        services.AddSingleton<ILogHttpWriterFactory, LogHttpWriterFactory>();
 
         // Pipeline
         services.AddSingleton<ILogViewerRequestHandler, StaticContentRequestHandler>();
+        services.AddSingleton<ILogViewerRequestHandler, LogEntriesRequestHandler>();
         services.AddSingleton<ILogViewerRequestDispatcher, LogViewerRequestDispatcher>();
 
         // Options
