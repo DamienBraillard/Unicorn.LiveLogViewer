@@ -6,6 +6,10 @@ namespace Unicorn.LiveLogViewer.Sources;
 /// <summary>
 /// Represents a logged event.
 /// </summary>
+#if NET6_0
+// The type 'LogEvent' defines init-only properties, deserialization of which is currently not supported in source generation mode. => LogEvent is never deserialized.
+#pragma warning disable SYSLIB1037
+#endif
 public class LogEvent
 {
     /// <summary>
