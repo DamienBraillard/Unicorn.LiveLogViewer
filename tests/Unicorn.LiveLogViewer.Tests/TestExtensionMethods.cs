@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Unicorn.LiveLogViewer.Tests;
@@ -39,6 +42,28 @@ public static class TestExtensionMethods
     {
         await foreach (var _ in asyncEnumerable)
         {
+        }
+    }
+
+    /// <summary>
+    /// Reads multiple JSON objects of the same type concatenated together.
+    /// </summary>
+    /// <param name="memoryStream">The <see cref="MemoryStream"/> to read from.</param>
+    /// <typeparam name="T">The type of the JSON objects to deserialize.</typeparam>
+    /// <returns>A collection of deserialized JSON objects.</returns>
+    public static IEnumerable<T?> ParseJson<T>(this MemoryStream memoryStream)
+    {
+        var buffer = new ReadOnlySequence<byte>(memoryStream.ToArray());
+        while (true)
+        {
+            var jsonReader = new Utf8JsonReader(buffer, isFinalBlock: false, default);
+            if (!JsonDocument.TryParseValue(ref jsonReader, out var jsonDocument))
+            {
+                break;
+            }
+
+            buffer = buffer.Slice(jsonReader.BytesConsumed);
+            yield return jsonDocument.Deserialize<T>();
         }
     }
 }
