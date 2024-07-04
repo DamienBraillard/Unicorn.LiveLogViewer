@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Unicorn.LiveLogViewer.RequestProcessing;
-using Unicorn.LiveLogViewer.Serialization;
 using Unicorn.LiveLogViewer.Sources;
 
 namespace Unicorn.LiveLogViewer;
@@ -26,7 +25,6 @@ public static class LiveLogViewerApplicationBuilderExtensions
     {
         // Required dependencies
         services.AddSingleton<ILogProvider>(NullLogProvider.Default);
-        services.AddSingleton<ILogHttpWriterFactory, LogHttpWriterFactory>();
 
         // Pipeline
         services.AddSingleton<ILogViewerRequestHandler, StaticContentRequestHandler>();
