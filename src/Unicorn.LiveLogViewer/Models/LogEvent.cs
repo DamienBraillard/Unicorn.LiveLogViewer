@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unicorn.LiveLogViewer.Sources;
 
-namespace Unicorn.LiveLogViewer.Sources;
+namespace Unicorn.LiveLogViewer.Models;
 
 /// <summary>
 /// Represents a logged event.

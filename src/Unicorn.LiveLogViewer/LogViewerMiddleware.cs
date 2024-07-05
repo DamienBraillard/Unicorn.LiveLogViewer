@@ -8,7 +8,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Template;
+using Unicorn.LiveLogViewer.Models;
 using Unicorn.LiveLogViewer.Sources;
+using LogViewerSerializerContext = Unicorn.LiveLogViewer.Models.LogViewerSerializerContext;
 
 namespace Unicorn.LiveLogViewer;
 

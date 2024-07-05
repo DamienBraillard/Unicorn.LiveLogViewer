@@ -7,6 +7,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using NSubstitute;
+using Unicorn.LiveLogViewer.Models;
 using Unicorn.LiveLogViewer.Sources;
 using Unicorn.LiveLogViewer.Tests.Helpers;
 using Xunit;
