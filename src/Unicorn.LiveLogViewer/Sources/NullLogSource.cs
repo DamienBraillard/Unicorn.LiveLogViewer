@@ -26,5 +26,5 @@ public class NullLogSource : ILogSource
     public Task<int> ReadAsync(ArraySegment<LogEvent> buffer, CancellationToken cancellationToken) => Task.FromResult(0);
 
     /// <inheritdoc/>
-    public ValueTask DisposeAsync() => throw new NotImplementedException();
+    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 }

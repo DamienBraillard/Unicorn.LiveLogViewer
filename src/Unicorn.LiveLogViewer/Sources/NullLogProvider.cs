@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Unicorn.LiveLogViewer.Models;
@@ -27,5 +26,14 @@ public class NullLogProvider : ILogProvider
     public IReadOnlyCollection<string> LogLevels => [];
 
     /// <inheritdoc/>
-    public Task<ILogSource> OpenAsync(string name, CancellationToken cancellationToken) => throw new NotImplementedException();
+    public Task<IReadOnlyCollection<LogSourceInfo>> GetLogSourcesAsync(CancellationToken cancellationToken)
+    {
+        return Task.FromResult<IReadOnlyCollection<LogSourceInfo>>([new LogSourceInfo { Id = "Null", IsLive = false, Name = "Null" }]);
+    }
+
+    /// <inheritdoc/>
+    public Task<ILogSource?> OpenAsync(string sourceId, CancellationToken cancellationToken)
+    {
+        return Task.FromResult<ILogSource?>(sourceId == "Null" ? NullLogSource.Default : null);
+    }
 }

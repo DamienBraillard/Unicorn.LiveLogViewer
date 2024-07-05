@@ -19,12 +19,19 @@ public interface ILogProvider
     IReadOnlyCollection<string> LogLevels { get; }
 
     /// <summary>
-    /// Opens log event source with the specified <paramref name="name"/>.
+    /// Enumerates the available log sources.
     /// </summary>
-    /// <param name="name">The name of the source to open.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> that can be used to cancel the operation.</param>
-    /// <returns>A <see cref="ILogSource"/> that matches the specified <paramref name="name"/>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <c>null</c>.</exception>
-    /// <exception cref="ArgumentException">No source with the specified <paramref name="name"/> exists.</exception>
-    Task<ILogSource> OpenAsync(string name, CancellationToken cancellationToken);
+    /// <returns>A collection of <see cref="LogSourceInfo"/> that describes the available log sources.</returns>
+    Task<IReadOnlyCollection<LogSourceInfo>> GetLogSourcesAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Opens log event source with the specified <paramref name="sourceId"/>.
+    /// </summary>
+    /// <param name="sourceId">A source ID provided by a <see cref="LogSourceInfo"/> that uniquely identifies the source to open.</param>
+    /// <param name="cancellationToken">The <see cref="CancellationToken"/> that can be used to cancel the operation.</param>
+    /// <returns>A <see cref="ILogSource"/> that matches the specified <paramref name="sourceId"/>; <c>null</c> if no matching log source was found.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="sourceId"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentException"><paramref name="sourceId"/> is empty.</exception>
+    Task<ILogSource?> OpenAsync(string sourceId, CancellationToken cancellationToken);
 }
