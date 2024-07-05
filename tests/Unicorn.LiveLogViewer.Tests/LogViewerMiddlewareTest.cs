@@ -7,21 +7,22 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using NSubstitute;
-using Unicorn.LiveLogViewer.RequestProcessing;
 using Unicorn.LiveLogViewer.Sources;
 using Xunit;
 
-namespace Unicorn.LiveLogViewer.Tests.RequestProcessing;
+namespace Unicorn.LiveLogViewer.Tests;
 
-public class LogEntriesRequestHandlerTest
+public class LogViewerMiddlewareTest
 {
     private readonly ILogProvider _sourceProvider;
-    private readonly LogEntriesRequestHandler _target;
+    private readonly RequestDelegate _next;
+    private readonly LogViewerMiddleware _target;
 
-    public LogEntriesRequestHandlerTest()
+    public LogViewerMiddlewareTest()
     {
         _sourceProvider = Substitute.For<ILogProvider>();
-        _target = new LogEntriesRequestHandler(_sourceProvider);
+        _next = Substitute.For<RequestDelegate>();
+        _target = new LogViewerMiddleware(_sourceProvider);
     }
 
     [Fact]
@@ -30,20 +31,20 @@ public class LogEntriesRequestHandlerTest
         // Arrange
 
         // Act
-        var action = () => new LogEntriesRequestHandler(null!);
+        var action = () => new LogViewerMiddleware(null!);
 
         // Assert
         action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("sourceProvider");
     }
 
     [Fact]
-    public async Task TryHandleRequestAsync_RouteMatches_SetsTheHttpHeaders()
+    public async Task InvokeAsync_RouteMatches_SetsTheHttpHeaders()
     {
         // Arrange
         var context = CreateContext(path: "/sources/my-source");
 
         // Act
-        await _target.TryHandleRequestAsync(context);
+        await _target.InvokeAsync(context, _next);
 
         // Assert
         context.Response.Headers.ContentType.Should().BeEquivalentTo("application/json; charset=utf-8");
@@ -52,20 +53,20 @@ public class LogEntriesRequestHandlerTest
     [Theory]
     [InlineData("/sources/my-source", "my-source")]
     [InlineData("/sources/my-source/", "my-source")]
-    public async Task TryHandleRequestAsync_RouteMatches_OpensTheSource(string requestPath, string expectedSourceName)
+    public async Task InvokeAsync_RouteMatches_OpensTheSource(string requestPath, string expectedSourceName)
     {
         // Arrange
         var context = CreateContext(path: requestPath);
 
         // Act
-        await _target.TryHandleRequestAsync(context);
+        await _target.InvokeAsync(context, _next);
 
         // Assert
         await _sourceProvider.Received(1).OpenAsync(expectedSourceName, context.RequestAborted);
     }
 
     [Fact]
-    public async Task TryHandleRequestAsync_RouteMatches_DisposesTheSource()
+    public async Task InvokeAsync_RouteMatches_DisposesTheSource()
     {
         // Arrange
         var context = CreateContext(path: "/sources/my-source");
@@ -74,14 +75,14 @@ public class LogEntriesRequestHandlerTest
         _sourceProvider.OpenAsync(default!, default!).ReturnsForAnyArgs(source);
 
         // Act
-        await _target.TryHandleRequestAsync(context);
+        await _target.InvokeAsync(context, _next);
 
         // Assert
         await source.Received(1).DisposeAsync();
     }
 
     [Fact]
-    public async Task TryHandleRequestAsync_RouteMatches_ReadsTheLogEvents()
+    public async Task InvokeAsync_RouteMatches_ReadsTheLogEvents()
     {
         // Arrange
         var context = CreateContext(path: "/sources/my-source");
@@ -92,14 +93,14 @@ public class LogEntriesRequestHandlerTest
         _sourceProvider.OpenAsync(default!, default!).ReturnsForAnyArgs(source);
 
         // Act
-        await _target.TryHandleRequestAsync(context);
+        await _target.InvokeAsync(context, _next);
 
         // Assert
         await source.Received(1).ReadAsync(Arg.Is<ArraySegment<LogEvent>>(x => x.Count > 50), context.RequestAborted);
     }
 
     [Fact]
-    public async Task TryHandleRequestAsync_RouteMatches_WritesTheLogEvents()
+    public async Task InvokeAsync_RouteMatches_WritesTheLogEvents()
     {
         // Arrange
         var bodyStream = new MemoryStream();
@@ -122,7 +123,7 @@ public class LogEntriesRequestHandlerTest
         _sourceProvider.OpenAsync(default!, default!).ReturnsForAnyArgs(source);
 
         // Act
-        await _target.TryHandleRequestAsync(context);
+        await _target.InvokeAsync(context, _next);
 
         // Assert
         bodyStream.Position = 0;
@@ -131,32 +132,32 @@ public class LogEntriesRequestHandlerTest
     }
 
     [Fact]
-    public async Task TryHandleRequestAsync_RouteMatches_ReturnsTrue()
+    public async Task InvokeAsync_RouteMatches_DoesNotInvokeNext()
     {
         // Arrange
         var context = CreateContext(path: "/sources/my-source");
 
         // Act
-        var result = await _target.TryHandleRequestAsync(context);
+        await _target.InvokeAsync(context, _next);
 
         // Assert
-        result.Should().BeTrue();
+        await _next.DidNotReceiveWithAnyArgs().Invoke(default!);
     }
 
     [Theory]
     [InlineData("")]
     [InlineData("/sources/")]
     [InlineData("/other/my-source")]
-    public async Task TryHandleRequestAsync_RouteDoesNotMatch_ReturnsFalse(string requestPath)
+    public async Task InvokeAsync_RouteDoesNotMatch_InvokesNext(string requestPath)
     {
         // Arrange
         var context = CreateContext(path: requestPath);
 
         // Act
-        var result = await _target.TryHandleRequestAsync(context);
+        await _target.InvokeAsync(context, _next);
 
         // Assert
-        result.Should().BeFalse();
+        await _next.Received(1).Invoke(context);
     }
 
     #region Helpers
@@ -166,7 +167,7 @@ public class LogEntriesRequestHandlerTest
     private static HttpContext CreateContext(string path, Stream? bodyStream = null)
     {
         var features = new FeatureCollection();
-        features.Set<IHttpRequestFeature>(new HttpRequestFeature { Path = path });
+        features.Set<IHttpRequestFeature>(new HttpRequestFeature { Path = path, Method = HttpMethods.Get });
         features.Set<IHttpResponseFeature>(new HttpResponseFeature() { Body = bodyStream ?? Stream.Null });
         features.Set<IHttpResponseBodyFeature>(new StreamResponseBodyFeature(bodyStream ?? Stream.Null));
 

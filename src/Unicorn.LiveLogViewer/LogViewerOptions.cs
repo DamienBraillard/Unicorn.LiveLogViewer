@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Microsoft.Extensions.FileProviders;
+﻿using Microsoft.Extensions.FileProviders;
 using Unicorn.LiveLogViewer.StaticContent;
 
 namespace Unicorn.LiveLogViewer;
@@ -15,7 +14,7 @@ public class LogViewerOptions
     public LogViewerOptions()
     {
         var staticRootType = typeof(StaticFiles);
-        StaticContentProviders = [new EmbeddedFileProvider(staticRootType.Assembly, staticRootType.Namespace)];
+        StaticContentProvider = new EmbeddedFileProvider(staticRootType.Assembly, staticRootType.Namespace);
     }
 
     /// <summary>
@@ -26,10 +25,5 @@ public class LogViewerOptions
     /// This allows to either fully replace the default provider or insert a provider that will
     /// only resolve one or more static files.
     /// </remarks>
-    public ICollection<IFileProvider> StaticContentProviders { get; set; }
-
-    /// <summary>
-    /// The base path at which the log viewer middleware listens.
-    /// </summary>
-    public string BasePath { get; set; } = "";
+    public IFileProvider StaticContentProvider { get; set; }
 }
