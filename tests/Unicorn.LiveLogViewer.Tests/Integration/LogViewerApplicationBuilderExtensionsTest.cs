@@ -16,7 +16,7 @@ namespace Unicorn.LiveLogViewer.Tests.Integration;
 
 public class LogViewerApplicationBuilderExtensionsTest
 {
-    private static readonly IFileProvider DefaultFiles = new EmbeddedFileProvider(typeof(StaticFiles).Assembly, typeof(StaticFiles).Namespace);
+    private static readonly IFileProvider DefaultFiles = new LogViewerOptions().StaticContentProvider;
 
     private readonly TestServerBuilder _builder;
 
