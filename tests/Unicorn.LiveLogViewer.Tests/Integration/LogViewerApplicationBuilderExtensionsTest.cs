@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -16,7 +16,7 @@ namespace Unicorn.LiveLogViewer.Tests.Integration;
 
 public class LogViewerApplicationBuilderExtensionsTest
 {
-    private static readonly IFileProvider DefaultFiles = new LogViewerOptions().StaticContentProvider;
+    private static readonly IFileProvider DefaultFiles = new EmbeddedFileProvider(typeof(StaticFileNames).Assembly, typeof(StaticFileNames).Namespace);
 
     private readonly TestServerBuilder _builder;
 
@@ -65,7 +65,7 @@ public class LogViewerApplicationBuilderExtensionsTest
         var actualContent = await client.GetStringAsync(requestPath);
 
         // Assert
-        var expectedContent = DefaultFiles.GetFileInfo(StaticFiles.Page).CreateReadStream().ToUtf8String();
+        var expectedContent = DefaultFiles.GetFileInfo(StaticFileNames.Page).CreateReadStream().ToUtf8String();
         actualContent.Should().Be(expectedContent);
     }
 
@@ -163,7 +163,7 @@ public class LogViewerApplicationBuilderExtensionsTest
         var actualContent = await client.GetStringAsync(requestPath);
 
         // Assert
-        var expectedContent = DefaultFiles.GetFileInfo(StaticFiles.Page).CreateReadStream().ToUtf8String();
+        var expectedContent = DefaultFiles.GetFileInfo(StaticFileNames.Page).CreateReadStream().ToUtf8String();
         actualContent.Should().Be(expectedContent);
     }
 

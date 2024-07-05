@@ -3,7 +3,7 @@
 /// <summary>
 /// Exposes the name of the log viewer static files.
 /// </summary>
-public static class StaticFiles
+public static class StaticFileNames
 {
     /// <summary>
     /// The name of the log viewer main HTML page file.

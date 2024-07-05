@@ -28,6 +28,8 @@ public static class LogViewerApplicationBuilderExtensions
         this IServiceCollection services,
         Action<IServiceProvider, LogViewerOptions>? optionsBuilder = null)
     {
+        ArgumentNullException.ThrowIfNull(services);
+
         // Required dependencies
         services.AddSingleton<ILogProvider>(NullLogProvider.Default);
 
@@ -55,6 +57,9 @@ public static class LogViewerApplicationBuilderExtensions
     /// <exception cref="ArgumentException"><paramref name="basePath"/> does not start with a <c>'/'</c>.</exception>
     public static IApplicationBuilder UseLiveLogViewer(this IApplicationBuilder applicationBuilder, string basePath = DefaultBasePath)
     {
+        ArgumentNullException.ThrowIfNull(applicationBuilder);
+        ArgumentNullException.ThrowIfNull(basePath);
+
         // Ensure that the base path does not end with /
         basePath = basePath.TrimEnd('/');
 
@@ -72,6 +77,9 @@ public static class LogViewerApplicationBuilderExtensions
     /// <exception cref="ArgumentException"><paramref name="basePath"/> does not start with a <c>'/'</c>.</exception>
     public static IEndpointConventionBuilder MapLiveLogViewer(this IEndpointRouteBuilder endpointBuilder, string basePath = DefaultBasePath)
     {
+        ArgumentNullException.ThrowIfNull(endpointBuilder);
+        ArgumentNullException.ThrowIfNull(basePath);
+
         // Ensure that the base path does not end with /
         basePath = basePath.TrimEnd('/');
 
@@ -103,7 +111,7 @@ public static class LogViewerApplicationBuilderExtensions
         applicationBuilder.UseDefaultFiles(new DefaultFilesOptions
         {
             FileProvider = options.StaticContentProvider,
-            DefaultFileNames = [StaticFiles.Page],
+            DefaultFileNames = [StaticFileNames.Page],
             RedirectToAppendTrailingSlash = true,
         });
         applicationBuilder.UseStaticFiles(new StaticFileOptions

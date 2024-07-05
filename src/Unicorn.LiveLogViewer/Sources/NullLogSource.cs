@@ -8,7 +8,7 @@ namespace Unicorn.LiveLogViewer.Sources;
 /// <summary>
 /// A <see cref="ILogSource"/> that emits no events.
 /// </summary>
-public class NullLogSource : ILogSource
+public sealed class NullLogSource : ILogSource
 {
     /// <summary>
     /// Provides the singleton default <see cref="NullLogSource"/> instance.
