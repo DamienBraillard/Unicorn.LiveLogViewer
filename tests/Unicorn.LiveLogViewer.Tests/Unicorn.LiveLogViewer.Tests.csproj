@@ -13,5 +13,5 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Unicorn.LiveLogViewer\Unicorn.LiveLogViewer.csproj" />
   </ItemGroup>
-
+  
 </Project>

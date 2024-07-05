@@ -8,9 +8,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using NSubstitute;
 using Unicorn.LiveLogViewer.Sources;
+using Unicorn.LiveLogViewer.Tests.Helpers;
 using Xunit;
 
-namespace Unicorn.LiveLogViewer.Tests;
+namespace Unicorn.LiveLogViewer.Tests.Unit;
 
 public class LogViewerMiddlewareTest
 {
