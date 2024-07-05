@@ -5,13 +5,15 @@ using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Unicorn.LiveLogViewer.Tests;
+namespace Unicorn.LiveLogViewer.Tests.Helpers;
 
 /// <summary>
 /// Provides useful extensions methods for testing.
 /// </summary>
 public static class TestExtensionMethods
 {
+    #region IEnumerable<T>
+
     /// <summary>
     /// Converts a <see cref="IEnumerable{T}"/> instance to an <see cref="IAsyncEnumerable{T}"/> instance.
     /// </summary>
@@ -33,6 +35,10 @@ public static class TestExtensionMethods
         }
     }
 
+    #endregion
+
+    #region IAsyncEnumerable<T>
+
     /// <summary>
     /// Consumes all the values from the specified <paramref name="asyncEnumerable"/>.
     /// </summary>
@@ -44,6 +50,10 @@ public static class TestExtensionMethods
         {
         }
     }
+
+    #endregion
+
+    #region Stream
 
     /// <summary>
     /// Reads multiple JSON objects of the same type concatenated together.
@@ -66,4 +76,34 @@ public static class TestExtensionMethods
             yield return jsonDocument.Deserialize<T>();
         }
     }
+
+    /// <summary>
+    /// Converts a stream to a buffer that contains the data read from the stream current position.
+    /// </summary>
+    /// <param name="stream">The stream to read into the returned buffer.</param>
+    /// <param name="dispose"><c>true</c> to dispose the stream (default); otherwise, <c>false</c>.</param>
+    /// <returns>A buffer that contains the data that could be read from the stream current position.</returns>
+    public static byte[] ToBuffer(this Stream stream, bool dispose = true)
+    {
+        var memoryStream = new MemoryStream(stream.CanSeek ? (int)(stream.Length - stream.Position) : 0);
+        stream.CopyTo(memoryStream);
+        if (dispose)
+            stream.Dispose();
+        return memoryStream.ToArray();
+    }
+
+    /// <summary>
+    /// Converts a stream to an UTF8 string that contains the text read from the stream current position.
+    /// </summary>
+    /// <param name="stream">The stream to read into the returned string.</param>
+    /// <param name="dispose"><c>true</c> to dispose the stream (default); otherwise, <c>false</c>.</param>
+    /// <returns>A <see cref="string"/> that contains the text that could be read from the stream current position.</returns>
+    public static string ToUtf8String(this Stream stream, bool dispose = true)
+    {
+        using var reader = new StreamReader(stream, leaveOpen: !dispose);
+        var str = reader.ReadToEnd();
+        return str;
+    }
+
+    #endregion
 }
