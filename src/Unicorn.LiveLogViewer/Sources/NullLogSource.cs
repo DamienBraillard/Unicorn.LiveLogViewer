@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Unicorn.LiveLogViewer.Models;
 
 namespace Unicorn.LiveLogViewer.Sources;
 
