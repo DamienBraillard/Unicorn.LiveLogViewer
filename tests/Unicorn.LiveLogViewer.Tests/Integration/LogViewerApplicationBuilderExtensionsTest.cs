@@ -30,7 +30,6 @@ public class LogViewerApplicationBuilderExtensionsTest
     public async Task UseLiveLogViewer_AllDefaultStaticFiles_ServesTheStaticFile(bool useCustomBasePath, [CombinatorialMemberData(nameof(AvailableStaticFiles))] string file)
     {
         // Arrange
-
         using var server = _builder
             .SetupWebApplicationBuilder(builder => builder.Services.AddLiveLogViewer())
             .SetupWebApplication(app => _ = useCustomBasePath ? app.UseLiveLogViewer(basePath: "/my-test-path") : app.UseLiveLogViewer())
@@ -129,7 +128,6 @@ public class LogViewerApplicationBuilderExtensionsTest
     public async Task MapLiveLogViewer_AllDefaultStaticFiles_ServesTheStaticFile(bool useCustomBasePath, [CombinatorialMemberData(nameof(AvailableStaticFiles))] string file)
     {
         // Arrange
-
         using var server = _builder
             .SetupWebApplicationBuilder(builder => builder.Services.AddLiveLogViewer())
             .SetupWebApplication(app => _ = useCustomBasePath ? app.MapLiveLogViewer(basePath: "/my-test-path") : app.MapLiveLogViewer())
