@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Unicorn.LiveLogViewer.Models;
 
 namespace Unicorn.LiveLogViewer.Tests.Helpers;
 
@@ -63,6 +64,11 @@ public static class TestExtensionMethods
     /// <returns>A collection of deserialized JSON objects.</returns>
     public static IEnumerable<T?> ParseJson<T>(this MemoryStream memoryStream)
     {
+        var options = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = LogViewerSerializerContext.Default.Options.PropertyNamingPolicy,
+        };
+
         var buffer = new ReadOnlySequence<byte>(memoryStream.ToArray());
         while (true)
         {
@@ -73,7 +79,7 @@ public static class TestExtensionMethods
             }
 
             buffer = buffer.Slice(jsonReader.BytesConsumed);
-            yield return jsonDocument.Deserialize<T>();
+            yield return jsonDocument.Deserialize<T>(options);
         }
     }
 
