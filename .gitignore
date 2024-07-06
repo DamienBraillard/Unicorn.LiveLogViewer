@@ -6,6 +6,9 @@
 # Temporary files
 ~$*
 
+# Test results log files
+*.trx
+
 # Compiled output
 bin/
 obj/
