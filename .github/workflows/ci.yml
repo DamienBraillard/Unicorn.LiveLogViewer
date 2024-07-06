@@ -8,9 +8,13 @@ name: Continuous Integration
 
 on:
   push:
-    branches: [ '**' ]
+    branches:
+      - 'master'
+      - 'develop'
+      - 'feature*/**'
   pull_request:
-    branches: [ 'master' ]
+    branches:
+      - '**'
 
 permissions:
   checks: write # Required for writing test reports
