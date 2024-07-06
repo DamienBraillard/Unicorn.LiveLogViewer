@@ -9,21 +9,17 @@ namespace Unicorn.LiveLogViewer;
 public class LogViewerOptions
 {
     /// <summary>
-    /// Initialize a new instance of the <see cref="LogViewerOptions"/> class.
-    /// </summary>
-    public LogViewerOptions()
-    {
-        var staticRootType = typeof(StaticFiles);
-        StaticContentProvider = new EmbeddedFileProvider(staticRootType.Assembly, staticRootType.Namespace);
-    }
-
-    /// <summary>
-    /// Defines the collection of <see cref="IFileProvider"/> that will be used to locate static content.
+    /// Defines the <see cref="IFileProvider"/> that will be used to serve static content.
     /// </summary>
     /// <remarks>
-    /// Each <see cref="IFileProvider"/> will be queried first to last for the desired file.
-    /// This allows to either fully replace the default provider or insert a provider that will
-    /// only resolve one or more static files.
+    /// To replace a static file, use the <see cref="CompositeFileProvider"/> by inserting your own file provider before the default one.
+    /// <code>
+    /// services.AddLiveLogViewer((serviceProvider, options) =>
+    /// {
+    ///     IFileProvider customFileProvider = …;
+    ///     options.StaticContentProvider = new CompositeFileProvider(customFileProvider, options.StaticContentProvider);
+    /// });
+    /// </code>
     /// </remarks>
-    public IFileProvider StaticContentProvider { get; set; }
+    public IFileProvider StaticContentProvider { get; set; } = new EmbeddedFileProvider(typeof(StaticFiles).Assembly, typeof(StaticFiles).Namespace);
 }
