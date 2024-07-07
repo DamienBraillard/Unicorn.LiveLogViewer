@@ -17,6 +17,7 @@ on:
       - '**'
 
 env:
+  Configuration: Release
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   DOTNET_NOLOGO: true
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
@@ -47,10 +48,10 @@ jobs:
         run: dotnet restore
 
       - name: Build
-        run: dotnet build --configuration release --no-restore
+        run: dotnet build --no-restore
 
       - name: Test
-        run: dotnet test --configuration release --no-build --logger "trx;logFileName=test-results.trx"
+        run: dotnet test --no-build --logger "trx;logFileName=test-results.trx"
         continue-on-error: true # Allows the test report to be generated even if the tests fail
 
       - name: Generate test report
