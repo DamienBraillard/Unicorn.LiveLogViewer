@@ -28,12 +28,14 @@ permissions:
 
 jobs:
   build:
+    name: 🛠️ Build and test
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: 👨‍💻 Check-out code
+        uses: actions/checkout@v4
 
-      - name: Setup .NET
+      - name: 👨‍🔧 Setup .NET Core SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
@@ -41,20 +43,20 @@ jobs:
             7.x
             8.x
 
-      - name: Show dotnet details
+      - name: ℹ️ Show dotnet details
         run: dotnet --info
 
-      - name: Restore dependencies
+      - name: 📥 Restore packages
         run: dotnet restore
 
-      - name: Build
+      - name: 🪚 Build code
         run: dotnet build --no-restore
 
-      - name: Test
+      - name: 🫣 Test code
         run: dotnet test --no-build --logger "trx;logFileName=test-results.trx"
         continue-on-error: true # Allows the test report to be generated even if the tests fail
 
-      - name: Generate test report
+      - name: 📝 Generate test report
         uses: dorny/test-reporter@v1
         if: always()
         with:
