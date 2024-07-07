@@ -20,33 +20,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: |
-          6.x
-          8.x
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            6.x
+            8.x
 
-    - name: Show dotnet details
-      run: dotnet --info
+      - name: Show dotnet details
+        run: dotnet --info
 
-    - name: Restore dependencies
-      run: dotnet restore
+      - name: Restore dependencies
+        run: dotnet restore
 
-    - name: Build
-      run: dotnet build --configuration release --no-restore
+      - name: Build
+        run: dotnet build --configuration release --no-restore
 
-    - name: Test
-      run: dotnet test --configuration release --no-build --logger "trx;logFileName=test-results.trx"
-      continue-on-error: true # Allows the test report to be generated even if the tests fail
+      - name: Test
+        run: dotnet test --configuration release --no-build --logger "trx;logFileName=test-results.trx"
+        continue-on-error: true # Allows the test report to be generated even if the tests fail
 
-    - name: Generate test report
-      uses: dorny/test-reporter@v1
-      if: always()
-      with:
-        name: Test results
-        path: "**/test-results.trx"
-        reporter: dotnet-trx
-        fail-on-error: true
+      - name: Generate test report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Test results
+          path: "**/test-results.trx"
+          reporter: dotnet-trx
+          fail-on-error: true
