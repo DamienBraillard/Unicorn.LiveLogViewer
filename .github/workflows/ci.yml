@@ -53,7 +53,7 @@ jobs:
           # Look to see if there is a cache hit for the corresponding requirements file
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-nuget          
+            ${{ runner.os }}-nuget-          
 
       - name: 📥 Restore packages
         run: dotnet restore
@@ -62,14 +62,7 @@ jobs:
         run: dotnet build --no-restore
 
       - name: 🫣 Test code
-        run: dotnet test --no-build --logger "trx;logFileName=test-results.trx"
-        continue-on-error: true # Allows the test report to be generated even if the tests fail
-
-      - name: 📝 Generate test report
-        uses: dorny/test-reporter@v1
-        if: always()
-        with:
-          name: Test results
-          path: "**/test-results.trx"
-          reporter: dotnet-trx
-          fail-on-error: true
+        run: |
+          echo "# ❔ <b>Test results</b>" >> $GITHUB_STEP_SUMMARY
+          dotnet test --no-build
+        continue-on-error: true
