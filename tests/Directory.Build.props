@@ -1,4 +1,6 @@
 <Project>
+  <Import Project="$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), '..', 'tools', 'Custom.Tasks.targets'))"/>
+
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
     <IsPackable>false</IsPackable>
@@ -35,6 +37,7 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0"/>
     <PackageReference Include="NSubstitute" Version="5.1.0"/>
     <PackageReference Include="NSubstitute.Analyzers.CSharp" Version="1.0.16" />
+    <PackageReference Include="ReportGenerator" Version="5.3.7" PrivateAssets="all" />
     <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="20.0.15" />
     <PackageReference Include="TestableIO.System.IO.Abstractions.Extensions" Version="2.2.1" />
     <PackageReference Include="Verify.Xunit" Version="23.1.0" />
@@ -77,5 +80,43 @@
       GitHubActions%3Bsummary.includePassedTests=true%3Bsummary.includeSkippedTests=true%3Bsummary.includeNotFoundTests=true;
     </VSTestLogger>
   </PropertyGroup>
+
+  <PropertyGroup Label="Test output: All">
+    <!-- Collect code coverage -->
+    <CollectCoverage>true</CollectCoverage>
+    <!-- Save code coverage analysis using opencover format in same folder than the unit test rsults -->
+    <CoverletOutputFormat>json,lcov,opencover</CoverletOutputFormat>
+    <CoverletOutput>$([MSBuild]::EnsureTrailingSlash($(VSTestResultsDirectory)))</CoverletOutput>
+    <!-- Ensure that sequential runs are merged together -->
+    <MergeWith>$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), 'results', 'coverage.$(TargetFramework).json'))</MergeWith>
+    <!-- Exclude code marked with specific attributes -->
+    <ExcludeByAttribute>ObsoleteAttribute,GeneratedCodeAttribute,CompilerGeneratedAttribute,ExcludeFromCodeCoverage</ExcludeByAttribute>
+    <!-- Prepares the coverage output file -->
+    <CoverageOutputFile>$([System.IO.Path]::Combine($(VSTestResultsDirectory), 'coverage.$(TargetFramework).opencover.xml'))</CoverageOutputFile>
+  </PropertyGroup>
+
+  <!-- Add a title to the Github summary for each framework run -->
+  <Target Label="Target Framework title" Name="AddTargetFrameworkTitleToGithubSummary" BeforeTargets="VSTest" Condition="$(CI) == 'true' and $(TargetFramework) != ''">
+    <WriteToGitHubSummary
+      Text="## ➡️ $(TargetFramework)"/>
+  </Target>
+
+  <!-- Generate coverage report  -->
+  <Target Label="Coverage report: NON CI" Name="GenerateHtmlCoverageReport" AfterTargets="GenerateCoverageResult" Condition="$(CI) != 'true'">
+    <ReportGenerator
+        ReportFiles="$(CoverageOutputFile)"
+        TargetDirectory="$([System.IO.Path]::Combine($(VSTestResultsDirectory), 'coverage'))"
+        ReportTypes="HtmlInline" />
+  </Target>
+
+  <Target Label="Coverage report: CI" Name="GenerateHtmlCoverageReport" AfterTargets="GenerateCoverageResult" Condition="$(CI) == 'true'">
+    <ReportGenerator
+        ReportFiles="$(CoverageOutputFile)"
+        TargetDirectory="$(VSTestResultsDirectory)"
+        ReportTypes="MarkdownSummary" />
+    <SendCoverageToGitHubSummary
+      Title="Code Coverage ($(TargetFramework))"
+      InputFile="$([System.IO.Path]::Combine($(VSTestResultsDirectory), 'Summary.md'))" />
+  </Target>
 
 </Project>

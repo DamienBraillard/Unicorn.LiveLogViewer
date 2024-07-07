@@ -80,6 +80,12 @@
         "resolved": "1.0.16",
         "contentHash": "+sdWbGyEQl22A4fBWo17/T53TMdbxegNjqwCxdBUS5/tp8ESJwfvHvGdIGj83sR0jKxvpUQoHO35qcf9tdgmdw=="
       },
+      "ReportGenerator": {
+        "type": "Direct",
+        "requested": "[5.3.7, )",
+        "resolved": "5.3.7",
+        "contentHash": "v2QymfyRqwgKECFDd8R9YTIJb0MS/6gKZiEnmc0R2tGU8sCagvxlNL9h0uNz7ETBsIaFWxGFM2pJgPKYjKcBPw=="
+      },
       "System.IO.Abstractions.TestingHelpers": {
         "type": "Direct",
         "requested": "[20.0.15, )",
@@ -468,6 +474,12 @@
         "resolved": "1.0.16",
         "contentHash": "+sdWbGyEQl22A4fBWo17/T53TMdbxegNjqwCxdBUS5/tp8ESJwfvHvGdIGj83sR0jKxvpUQoHO35qcf9tdgmdw=="
       },
+      "ReportGenerator": {
+        "type": "Direct",
+        "requested": "[5.3.7, )",
+        "resolved": "5.3.7",
+        "contentHash": "v2QymfyRqwgKECFDd8R9YTIJb0MS/6gKZiEnmc0R2tGU8sCagvxlNL9h0uNz7ETBsIaFWxGFM2pJgPKYjKcBPw=="
+      },
       "System.IO.Abstractions.TestingHelpers": {
         "type": "Direct",
         "requested": "[20.0.15, )",
@@ -852,6 +864,12 @@
         "requested": "[1.0.16, )",
         "resolved": "1.0.16",
         "contentHash": "+sdWbGyEQl22A4fBWo17/T53TMdbxegNjqwCxdBUS5/tp8ESJwfvHvGdIGj83sR0jKxvpUQoHO35qcf9tdgmdw=="
+      },
+      "ReportGenerator": {
+        "type": "Direct",
+        "requested": "[5.3.7, )",
+        "resolved": "5.3.7",
+        "contentHash": "v2QymfyRqwgKECFDd8R9YTIJb0MS/6gKZiEnmc0R2tGU8sCagvxlNL9h0uNz7ETBsIaFWxGFM2pJgPKYjKcBPw=="
       },
       "System.IO.Abstractions.TestingHelpers": {
         "type": "Direct",
