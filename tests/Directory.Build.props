@@ -17,7 +17,7 @@
   <PropertyGroup Label="Restoring">
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <!-- https://devblogs.microsoft.com/nuget/enable-repeatable-package-restores-using-a-lock-file/#how-does-nuget-use-the-lock-file -->
-    <RestoreLockedMode Condition="$(CI) == 'true'">true</RestoreLockedMode>
+    <RestoreLockedMode Condition="$(ContinuousIntegrationBuild) == 'true'">true</RestoreLockedMode>
   </PropertyGroup>
 
   <ItemGroup>
@@ -70,13 +70,13 @@
   <PropertyGroup Label="Test results and coverage">
     <!-- Sets the test results directory -->
     <VSTestResultsDirectory>$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), 'results', $(TargetFramework)))</VSTestResultsDirectory>
-    <VSTestResultsDirectory Condition="$(CI) == 'true'">$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), 'results'))</VSTestResultsDirectory>
+    <VSTestResultsDirectory Condition="$(ContinuousIntegrationBuild) == 'true'">$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), 'results'))</VSTestResultsDirectory>
     <!-- Sets up the test results loggers -->
     <VSTestLogger>
       Console%3Bverbosity=normal;
       html%3BLogFileName=TestResultsReport.html
     </VSTestLogger>
-    <VSTestLogger Condition="$(CI) == 'true'">
+    <VSTestLogger Condition="$(ContinuousIntegrationBuild) == 'true'">
       GitHubActions%3Bsummary.includePassedTests=true%3Bsummary.includeSkippedTests=true%3Bsummary.includeNotFoundTests=true;
     </VSTestLogger>
     <!-- Defines the coverage output path -->
@@ -103,13 +103,13 @@
     </Delete>
     <Message Condition="'@(_TestResultsFilesDeleted)' != ''" Importance="normal" Text="Cleaned up previous test results files: @(_TestResultsFilesDeleted)" />
     <!-- Add a global title to the Github summary  -->
-    <WriteToGitHubSummary Condition="$(CI) == 'true'" Text="# ❔ &lt;b&gt;Test and coverage results&lt;/b&gt;"/>
+    <WriteToGitHubSummary Condition="$(ContinuousIntegrationBuild) == 'true'" Text="# ❔ &lt;b&gt;Test and coverage results&lt;/b&gt;"/>
   </Target>
 
   <!-- Action run before each framework test run -->
   <Target Name="FrameworkTestPreRun" BeforeTargets="VSTest" Condition="$(TargetFramework) != ''">
     <!-- Add a title to the Github summary for each framework run -->
-    <WriteToGitHubSummary Condition="$(CI) == 'true'" Text="## ➡️ $(TargetFramework)"/>
+    <WriteToGitHubSummary Condition="$(ContinuousIntegrationBuild) == 'true'" Text="## ➡️ $(TargetFramework)"/>
   </Target>
 
   <!-- Generate coverage report  -->
@@ -119,9 +119,9 @@
         TargetDirectory="$(CoverageOutputDir)"
         ReportTypes="HtmlInline;MarkdownSummary" />
     <!-- Inform user where the reports are (NON CI run) or push coverage report to GitHub Summary (CI run) -->
-    <Message Condition="$(CI) != 'true'" Importance="high" Text="ℹ️ Test result reports location: $(VSTestResultsDirectory)" />
+    <Message Condition="$(ContinuousIntegrationBuild) != 'true'" Importance="high" Text="ℹ️ Test result reports location: $(VSTestResultsDirectory)" />
     <SendCoverageToGitHubSummary
-        Condition="$(CI) == 'true'"
+        Condition="$(ContinuousIntegrationBuild) == 'true'"
         Title="Code Coverage ($(TargetFramework))"
         InputFile="$([System.IO.Path]::Combine($(CoverageOutputDir), 'Summary.md'))" />
   </Target>
