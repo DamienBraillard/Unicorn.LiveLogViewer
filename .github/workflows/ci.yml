@@ -62,7 +62,5 @@ jobs:
         run: dotnet build --no-restore
 
       - name: 🫣 Test code
-        run: |
-          echo "# ❔ <b>Test results</b>" >> $GITHUB_STEP_SUMMARY
-          dotnet test --no-build
+        run: dotnet test --no-build
         continue-on-error: true

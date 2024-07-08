@@ -60,63 +60,70 @@
     <Content Include="../xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
+  <!--
+  ==================================================================================================
+  == Test report and coverage processing
+  ==================================================================================================
+  -->
 
-  <!-- Test results output -->
-  <PropertyGroup Label="Tests output: NON CI" Condition="$(CI) != 'true'">
-    <!-- Sets the test results directory to the /tests direcctory -->
+  <!-- Test results & coverage setup -->
+  <PropertyGroup Label="Test results and coverage">
+    <!-- Sets the test results directory -->
     <VSTestResultsDirectory>$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), 'results', $(TargetFramework)))</VSTestResultsDirectory>
-    <!-- Sets up the test results logger for command line execution or CI build -->
+    <VSTestResultsDirectory Condition="$(CI) == 'true'">$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), 'results'))</VSTestResultsDirectory>
+    <!-- Sets up the test results loggers -->
     <VSTestLogger>
       Console%3Bverbosity=normal;
       html%3BLogFileName=TestResultsReport.html
     </VSTestLogger>
-  </PropertyGroup>
-
-  <PropertyGroup Label="Tests output: CI" Condition="$(CI) == 'true'">
-    <!-- Sets the test results directory to the /tests direcctory -->
-    <VSTestResultsDirectory>$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), 'results'))</VSTestResultsDirectory>
-    <!-- Sets up the test results logger for command line execution or CI build -->
     <VSTestLogger Condition="$(CI) == 'true'">
       GitHubActions%3Bsummary.includePassedTests=true%3Bsummary.includeSkippedTests=true%3Bsummary.includeNotFoundTests=true;
     </VSTestLogger>
-  </PropertyGroup>
-
-  <PropertyGroup Label="Test output: All">
-    <!-- Collect code coverage -->
+    <!-- Defines the coverage output path -->
+    <CoverageOutputDir>$([System.IO.Path]::Combine($(VSTestResultsDirectory), 'coverage'))</CoverageOutputDir>
+    <!-- Enable code coverage collection -->
     <CollectCoverage>true</CollectCoverage>
-    <!-- Save code coverage analysis using opencover format in same folder than the unit test rsults -->
-    <CoverletOutputFormat>json,lcov,opencover</CoverletOutputFormat>
-    <CoverletOutput>$([MSBuild]::EnsureTrailingSlash($(VSTestResultsDirectory)))</CoverletOutput>
-    <!-- Ensure that sequential runs are merged together -->
-    <MergeWith>$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), 'results', 'coverage.$(TargetFramework).json'))</MergeWith>
-    <!-- Exclude code marked with specific attributes -->
+    <!-- Save code coverage analysis in the coverage directory -->
+    <CoverletOutputFormat>json,opencover</CoverletOutputFormat>
+    <CoverletOutput>$([MSBuild]::EnsureTrailingSlash($(CoverageOutputDir)))</CoverletOutput>
+    <!-- Ensure that sequential runs (multiple test projects) are merged together -->
+    <MergeWith>$([System.IO.Path]::Combine($(CoverageOutputDir), 'coverage.$(TargetFramework).json'))</MergeWith>
+    <!-- Exclude code marked with specific attributes from coverage -->
     <ExcludeByAttribute>ObsoleteAttribute,GeneratedCodeAttribute,CompilerGeneratedAttribute,ExcludeFromCodeCoverage</ExcludeByAttribute>
-    <!-- Prepares the coverage output file -->
-    <CoverageOutputFile>$([System.IO.Path]::Combine($(VSTestResultsDirectory), 'coverage.$(TargetFramework).opencover.xml'))</CoverageOutputFile>
   </PropertyGroup>
 
-  <!-- Add a title to the Github summary for each framework run -->
-  <Target Label="Target Framework title" Name="AddTargetFrameworkTitleToGithubSummary" BeforeTargets="VSTest" Condition="$(CI) == 'true' and $(TargetFramework) != ''">
-    <WriteToGitHubSummary
-      Text="## ➡️ $(TargetFramework)"/>
+  <!-- Action run before all tests -->
+  <Target Name="GlobalTestPreRun" BeforeTargets="VSTest" Condition="$(TargetFramework) == ''">
+    <!-- Remove all test result files (only ONCE before the target framework specific runs) -->
+    <ItemGroup>
+      <_TestResultsFilesToDelete Include="$(VSTestResultsDirectory)\**"/>
+    </ItemGroup>
+    <Delete Files="@(_TestResultsFilesToDelete)">
+      <Output TaskParameter="DeletedFiles" ItemName="_TestResultsFilesDeleted"/>
+    </Delete>
+    <Message Condition="'@(_TestResultsFilesDeleted)' != ''" Importance="normal" Text="Cleaned up previous test results files: @(_TestResultsFilesDeleted)" />
+    <!-- Add a global title to the Github summary  -->
+    <WriteToGitHubSummary Condition="$(CI) == 'true'" Text="# ❔ &lt;b&gt;Test and coverage results&lt;/b&gt;"/>
+  </Target>
+
+  <!-- Action run before each framework test run -->
+  <Target Name="FrameworkTestPreRun" BeforeTargets="VSTest" Condition="$(TargetFramework) != ''">
+    <!-- Add a title to the Github summary for each framework run -->
+    <WriteToGitHubSummary Condition="$(CI) == 'true'" Text="## ➡️ $(TargetFramework)"/>
   </Target>
 
   <!-- Generate coverage report  -->
-  <Target Label="Coverage report: NON CI" Name="GenerateHtmlCoverageReport" AfterTargets="GenerateCoverageResult" Condition="$(CI) != 'true'">
+  <Target Name="CoverageReport" AfterTargets="GenerateCoverageResult" >
     <ReportGenerator
-        ReportFiles="$(CoverageOutputFile)"
-        TargetDirectory="$([System.IO.Path]::Combine($(VSTestResultsDirectory), 'coverage'))"
-        ReportTypes="HtmlInline" />
-  </Target>
-
-  <Target Label="Coverage report: CI" Name="GenerateHtmlCoverageReport" AfterTargets="GenerateCoverageResult" Condition="$(CI) == 'true'">
-    <ReportGenerator
-        ReportFiles="$(CoverageOutputFile)"
-        TargetDirectory="$(VSTestResultsDirectory)"
-        ReportTypes="MarkdownSummary" />
+        ReportFiles="$([System.IO.Path]::Combine($(CoverageOutputDir), 'coverage.$(TargetFramework).opencover.xml'))"
+        TargetDirectory="$(CoverageOutputDir)"
+        ReportTypes="HtmlInline;MarkdownSummary" />
+    <!-- Inform user where the reports are (NON CI run) or push coverage report to GitHub Summary (CI run) -->
+    <Message Condition="$(CI) != 'true'" Importance="high" Text="ℹ️ Test result reports location: $(VSTestResultsDirectory)" />
     <SendCoverageToGitHubSummary
-      Title="Code Coverage ($(TargetFramework))"
-      InputFile="$([System.IO.Path]::Combine($(VSTestResultsDirectory), 'Summary.md'))" />
+        Condition="$(CI) == 'true'"
+        Title="Code Coverage ($(TargetFramework))"
+        InputFile="$([System.IO.Path]::Combine($(CoverageOutputDir), 'Summary.md'))" />
   </Target>
 
 </Project>
