@@ -12,3 +12,4 @@ tests/results/
 # Compiled output
 bin/
 obj/
+*.nupkg

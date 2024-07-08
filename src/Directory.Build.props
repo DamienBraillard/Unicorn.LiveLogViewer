@@ -8,6 +8,9 @@
     <!-- Use embedded pdb to make sure we have file information and line numbers in stack traces even when
          packaging as single file. See https://github.com/dotnet/runtime/issues/34187#issuecomment-604955845 -->
     <DebugType>embedded</DebugType>
+
+    <!-- Embed all sources in the NuGet packages -->
+    <EmbedAllSources>true</EmbedAllSources>
   </PropertyGroup>
 
   <PropertyGroup Label="Assembly Info">

@@ -65,3 +65,6 @@ jobs:
       - name: 😨 Test code
         run: dotnet test --no-build
         continue-on-error: true
+
+      - name: 📦 Create NuGet package
+        run: dotnet pack --no-build --output .
