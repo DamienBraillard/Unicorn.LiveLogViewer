@@ -59,9 +59,9 @@ jobs:
       - name: 📥 Restore packages
         run: dotnet restore
 
-      - name: 🪚 Build code
+      - name: 🏗️ Build code
         run: dotnet build --no-restore
 
-      - name: 🫣 Test code
+      - name: 😨 Test code
         run: dotnet test --no-build
         continue-on-error: true
