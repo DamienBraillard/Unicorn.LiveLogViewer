@@ -1,4 +1,4 @@
-﻿namespace Unicorn.LiveLogViewer.StaticContent;
+namespace Unicorn.LiveLogViewer.StaticContent;
 
 /// <summary>
 /// Exposes the name of the log viewer static files.

@@ -1,4 +1,4 @@
-﻿namespace Unicorn.LiveLogViewer.Models;
+namespace Unicorn.LiveLogViewer.Models;
 
 /// <summary>
 /// Provides information about a log source.

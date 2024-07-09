@@ -1,4 +1,4 @@
-﻿<Project>
+<Project>
   <PropertyGroup>
     <!-- Samples are not part of the NuGet package -->
     <IsPackable>false</IsPackable>
