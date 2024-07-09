@@ -1,34 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
-    <LangVersion>latest</LangVersion>
-    <Nullable>enable</Nullable>
-    <AnalysisLevel>latest-all</AnalysisLevel>
-    <!-- CA2007 : Consider calling ConfigureAwait on the awaited task (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca2007) -->
-    <NoWarn>$(NoWarn);CA2007</NoWarn>
   </PropertyGroup>
-
-  <PropertyGroup Label="AOT">
-    <IsAotCompatible>true</IsAotCompatible>
-    <StripSymbols>false</StripSymbols>
-    <EnableRequestDelegateGenerator>true</EnableRequestDelegateGenerator>
-  </PropertyGroup>
-
-  <PropertyGroup Label="Packaging Metadata">
-<!--    <PackageIcon>icon.png</PackageIcon>-->
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageTags>logging logviewer aspnet</PackageTags>
-    <PackageProjectUrl>https://github.com/DamienBraillard/Unicorn.LiveLogViewer</PackageProjectUrl>
-    <PackageReleaseNotes>https://github.com/DamienBraillard/Unicorn.LiveLogViewer/blob/master/CHANGELOG.md</PackageReleaseNotes>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-  </PropertyGroup>
-
-  <ItemGroup Label="Packaging Metadata">
-<!--    <None Include="../resources/$(PackageIcon)" Pack="true" PackagePath="" Visible="false" />-->
-    <None Include="../../$(PackageReadmeFile)" Pack="true" PackagePath="" />
-  </ItemGroup>
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

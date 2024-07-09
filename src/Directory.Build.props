@@ -1,38 +1,78 @@
 <Project>
 
   <PropertyGroup>
+    <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
-    <!-- Enable C# 8.0 nullable types for non unit tests projects -->
     <Nullable>enable</Nullable>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <!-- Use embedded pdb to make sure we have file information and line numbers in stack traces even when
-         packaging as single file. See https://github.com/dotnet/runtime/issues/34187#issuecomment-604955845 -->
-    <DebugType>embedded</DebugType>
 
-    <!-- Embed all sources in the NuGet packages -->
+    <IsPackable>true</IsPackable>
+
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <DebugType>embedded</DebugType>
     <EmbedAllSources>true</EmbedAllSources>
+
+    <AnalysisLevel>latest-all</AnalysisLevel>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Wanings">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!--
+    CA2007: Do not directly await a Task
+    -->
+    <NoWarn>CA2007</NoWarn>
+    <!--
+    CS1030: #warning warnings
+    CS0618: A referenced member is marked as obsolete
+    -->
+    <WarningsNotAsErrors>CS1030;CA2007</WarningsNotAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup Label="AOT" Condition="$(TargetFramework) != 'net6.0'">
+    <IsAotCompatible>true</IsAotCompatible>
+    <StripSymbols>false</StripSymbols>
+    <EnableRequestDelegateGenerator>true</EnableRequestDelegateGenerator>
   </PropertyGroup>
 
   <PropertyGroup Label="Assembly Info">
     <Company>Soft Unicorn Sàrl</Company>
     <Product>Unicorn Live Log VIewer</Product>
     <Copyright>Copyright © Soft Unicorn Sàrl 2024-$([System.DateTime]::Now.Year)</Copyright>
-    <Version>$(CIAutoVersion)</Version>
-    <Version Condition="'$(Version)' == ''">0.0.0</Version>
-    <InformationalVersion Condition="$(Configuration) != 'Release'">$(Version)-alpha</InformationalVersion>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <!-- CS1030: Explicit #warning warnings -->
-    <WarningsNotAsErrors>CS1030, CS0618</WarningsNotAsErrors>
+  <ItemGroup Label="Assembly Info">
+    <!-- Add build date to assembly metadata to be easily retrieved for display (in debug use today to avoid unnecessary recompiles) -->
+    <AssemblyMetadata Include="BuildDate" Value="$([System.DateTime]::Today.ToString('O'))" Condition="$(Configuration) == 'Debug'" />
+    <AssemblyMetadata Include="BuildDate" Value="$([System.DateTime]::Now.ToString('O'))" Condition="$(Configuration) != 'Debug'" />
+  </ItemGroup>
+
+  <PropertyGroup Label="Packaging Metadata">
+    <!--    <PackageIcon>icon.png</PackageIcon>-->
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>logging logviewer aspnet</PackageTags>
+    <PackageProjectUrl>https://github.com/DamienBraillard/Unicorn.LiveLogViewer</PackageProjectUrl>
+    <PackageReleaseNotes>https://github.com/DamienBraillard/Unicorn.LiveLogViewer/blob/master/CHANGELOG.md</PackageReleaseNotes>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
   </PropertyGroup>
 
-  <PropertyGroup Label="Restoring">
+  <ItemGroup Label="Packaging Metadata">
+    <!--    <None Include="../resources/$(PackageIcon)" Pack="true" PackagePath="" Visible="false" />-->
+    <None Include="../../$(PackageReadmeFile)" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <PropertyGroup Label="NuGet restore">
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <!-- https://devblogs.microsoft.com/nuget/enable-repeatable-package-restores-using-a-lock-file/#how-does-nuget-use-the-lock-file -->
     <RestoreLockedMode Condition="$(ContinuousIntegrationBuild) == 'true'">true</RestoreLockedMode>
   </PropertyGroup>
+
+
+  <ItemGroup Label="Make internal types visible to unit tests">
+    <!-- Make internal types visible to its test assembly ! -->
+    <InternalsVisibleTo Include="$(AssemblyName).Tests" />
+    <!-- Make internal types visible to NSubstitute -->
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+  </ItemGroup>
 
   <Target Name="EmbedDocumentation" BeforeTargets="PrepareForBuild">
     <ItemGroup>
@@ -41,33 +81,6 @@
       </EmbeddedResource>
     </ItemGroup>
   </Target>
-
-  <ItemGroup>
-    <PackageReference Include="TestableIO.System.IO.Abstractions.Analyzers" Version="2022.0.0" PrivateAssets="all" />
-  </ItemGroup>
-
-  <!-- So that the AddSourceRevisionToInformationalVersion target is called and we have the git commit hash in the InformationalVersion property -->
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Build.Tasks.Git" Version="8.0.0" PrivateAssets="all" />
-  </ItemGroup>
-  <Target Name="_InitializeSourceControlInformationFromSourceControlManager"
-          DependsOnTargets="InitializeSourceControlInformationFromSourceControlManager"
-          BeforeTargets="InitializeSourceControlInformation" />
-
-  <ItemGroup>
-    <!-- Add build date to assembly metadata to be easily retrieved for display -->
-    <AssemblyMetadata Include="BuildDate" Condition="$(Configuration) == 'Debug'">
-      <!-- Using Today instead of Now in order to improve build times in Debug configuration because each BuildDate changes forces a recompilation -->
-      <Value>$([System.DateTime]::Today.ToString("O"))</Value>
-    </AssemblyMetadata>
-    <AssemblyMetadata Include="BuildDate" Condition="$(Configuration) != 'Debug'">
-      <Value>$([System.DateTime]::Now.ToString("O"))</Value>
-    </AssemblyMetadata>
-    <!-- Make internal types visible to its test assembly ! -->
-    <InternalsVisibleTo Include="$(AssemblyName).Tests" />
-    <!-- Make internal types visible to NSubstitute -->
-    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
-  </ItemGroup>
 
   <Target Name="ValidateNuGetPackage" AfterTargets="Pack">
     <!-- For reference: the file `.config/dotnet-tools.json` was created by running `dotnet new tool-manifest && dotnet tool install dotnet-validate` -->
