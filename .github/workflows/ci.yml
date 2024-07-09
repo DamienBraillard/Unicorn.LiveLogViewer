@@ -1,0 +1,52 @@
+#===============================================================================
+# Continuous integration workflow
+#-------------------------------------------------------------------------------
+# Performs continuous building on each commit or pull-requests on master
+#===============================================================================
+
+name: Continuous Integration
+
+on:
+  push:
+    branches: [ '**' ]
+  pull_request:
+    branches: [ 'master' ]
+
+permissions:
+  checks: write # Required for writing test reports
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: |
+          6.x
+          8.x
+
+    - name: Show dotnet details
+      run: dotnet --info
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --configuration release --no-restore
+
+    - name: Test
+      run: dotnet test --configuration release --no-build --logger "trx;logFileName=test-results.trx"
+      continue-on-error: true # Allows the test report to be generated even if the tests fail
+
+    - name: Generate test report
+      uses: dorny/test-reporter@v1
+      if: always()
+      with:
+        name: Test results
+        path: "**/test-results.trx"
+        reporter: dotnet-trx
+        fail-on-error: true
