@@ -17,6 +17,12 @@
       <Code Type="Fragment" Language="cs">
         <![CDATA[
           var outputFilePath = Environment.GetEnvironmentVariable("GITHUB_STEP_SUMMARY");
+          if (String.IsNullOrEmpty(outputFilePath))
+          {
+              Log.LogError("The GITHUB_STEP_SUMMARY environment variable is not defined. Please define the GITHUB_STEP_SUMMARY to contain the path of the markdown file where the build summary should be written");
+              return false;
+          }
+
           using (var writer = new StreamWriter(outputFilePath, true) { NewLine = "\n" })
           {
               writer.WriteLine(); // Safety empty line
@@ -51,26 +57,31 @@
       <Using Namespace="System.Text.RegularExpressions" />
       <Code Type="Fragment" Language="cs">
         <![CDATA[
+          var outputFilePath = Environment.GetEnvironmentVariable("GITHUB_STEP_SUMMARY");
+          if (String.IsNullOrEmpty(outputFilePath))
+          {
+              Log.LogError("The GITHUB_STEP_SUMMARY environment variable is not defined. Please define the GITHUB_STEP_SUMMARY to contain the path of the markdown file where the build summary should be written");
+              return false;
+          }
+
           foreach(var inputFileItem in InputFile)
           {
-            var content = File.ReadAllLines(inputFileItem.GetMetadata("FullPath"));
-            var coverageMatch = Regex.Match(string.Join("\n", content), @"Line coverage.*?([0-9\.]+%)");
-            var coverage = coverageMatch.Success ? coverageMatch.Groups[1].Value : "?%";
+              var content = File.ReadAllLines(inputFileItem.GetMetadata("FullPath"));
+              var coverageMatch = Regex.Match(string.Join("\n", content), @"Line coverage.*?([0-9\.]+%)");
+              var coverage = coverageMatch.Success ? coverageMatch.Groups[1].Value : "?%";
 
-            var outputFilePath = Environment.GetEnvironmentVariable("GITHUB_STEP_SUMMARY");
-            Log.LogMessage(MessageImportance.High, "Writing code coverage to '{0}'", outputFilePath);
-            using (var writer = new StreamWriter(outputFilePath, true) { NewLine = "\n" })
-            {
-                writer.WriteLine();
-                writer.WriteLine($"<details><summary><b>🔵 {Title}</b>: {coverage}</summary>");
-                writer.WriteLine(); // An empty line is required before the first table or it won't display correctly
-                foreach(var line in content.Where(l => !l.StartsWith("#")))
-                {
-                   writer.WriteLine(line);
-                }
-                writer.WriteLine(); // Add an empty line as safety
-                writer.WriteLine("</details>");
-            }
+              using (var writer = new StreamWriter(outputFilePath, true) { NewLine = "\n" })
+              {
+                  writer.WriteLine();
+                  writer.WriteLine($"<details><summary><b>🔵 {Title}</b>: {coverage}</summary>");
+                  writer.WriteLine(); // An empty line is required before the first table or it won't display correctly
+                  foreach(var line in content.Where(l => !l.StartsWith("#")))
+                  {
+                      writer.WriteLine(line);
+                  }
+                  writer.WriteLine(); // Add an empty line as safety
+                  writer.WriteLine("</details>");
+              }
           }
         ]]>
       </Code>
