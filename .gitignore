@@ -6,9 +6,10 @@
 # Temporary files
 ~$*
 
-# Test results log files
-*.trx
+# Test results files
+tests/results/
 
 # Compiled output
 bin/
 obj/
+*.nupkg

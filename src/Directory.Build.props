@@ -8,6 +8,9 @@
     <!-- Use embedded pdb to make sure we have file information and line numbers in stack traces even when
          packaging as single file. See https://github.com/dotnet/runtime/issues/34187#issuecomment-604955845 -->
     <DebugType>embedded</DebugType>
+
+    <!-- Embed all sources in the NuGet packages -->
+    <EmbedAllSources>true</EmbedAllSources>
   </PropertyGroup>
 
   <PropertyGroup Label="Assembly Info">
@@ -23,6 +26,12 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <!-- CS1030: Explicit #warning warnings -->
     <WarningsNotAsErrors>CS1030, CS0618</WarningsNotAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Restoring">
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <!-- https://devblogs.microsoft.com/nuget/enable-repeatable-package-restores-using-a-lock-file/#how-does-nuget-use-the-lock-file -->
+    <RestoreLockedMode Condition="$(ContinuousIntegrationBuild) == 'true'">true</RestoreLockedMode>
   </PropertyGroup>
 
   <Target Name="EmbedDocumentation" BeforeTargets="PrepareForBuild">
@@ -59,5 +68,11 @@
     <!-- Make internal types visible to NSubstitute -->
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
   </ItemGroup>
+
+  <Target Name="ValidateNuGetPackage" AfterTargets="Pack">
+    <!-- For reference: the file `.config/dotnet-tools.json` was created by running `dotnet new tool-manifest && dotnet tool install dotnet-validate` -->
+    <Exec Command="dotnet tool restore" />
+    <Exec Command="dotnet validate package local $([MSBuild]::EnsureTrailingSlash($(PackageOutputPath)))$(PackageId).$(PackageVersion).nupkg" EnvironmentVariables="DOTNET_ROLL_FORWARD=LatestMajor" />
+  </Target>
 
 </Project>

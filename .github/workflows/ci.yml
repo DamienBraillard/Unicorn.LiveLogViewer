@@ -8,45 +8,63 @@ name: Continuous Integration
 
 on:
   push:
-    branches: [ '**' ]
+    branches:
+      - 'master'
+      - 'develop'
+      - 'feature*/**'
   pull_request:
-    branches: [ 'master' ]
+    branches:
+      - '**'
+
+env:
+  Configuration: Release
+  ContinuousIntegrationBuild: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_NOLOGO: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_SYSTEM_CONSOLE_ALLOW_ANSI_COLOR_REDIRECTION: true
 
 permissions:
   checks: write # Required for writing test reports
 
 jobs:
   build:
+    name: 🛠️ Build and test
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - name: 👨‍💻 Check-out code
+        uses: actions/checkout@v4
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: |
-          6.x
-          8.x
+      - name: 👨‍🔧 Setup .NET Core SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            6.x
+            7.x
+            8.x
 
-    - name: Show dotnet details
-      run: dotnet --info
+      - name: ℹ️ Show dotnet details
+        run: dotnet --info
 
-    - name: Restore dependencies
-      run: dotnet restore
+      - name: 💾 Enable package caching
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          # Look to see if there is a cache hit for the corresponding requirements file
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-          
 
-    - name: Build
-      run: dotnet build --configuration release --no-restore
+      - name: 📥 Restore packages
+        run: dotnet restore
 
-    - name: Test
-      run: dotnet test --configuration release --no-build --logger "trx;logFileName=test-results.trx"
-      continue-on-error: true # Allows the test report to be generated even if the tests fail
+      - name: 🏗️ Build code
+        run: dotnet build --no-restore
 
-    - name: Generate test report
-      uses: dorny/test-reporter@v1
-      if: always()
-      with:
-        name: Test results
-        path: "**/test-results.trx"
-        reporter: dotnet-trx
-        fail-on-error: true
+      - name: 😨 Test code
+        run: dotnet test --no-build
+        continue-on-error: true
+
+      - name: 📦 Create NuGet package
+        run: dotnet pack --no-build --output .

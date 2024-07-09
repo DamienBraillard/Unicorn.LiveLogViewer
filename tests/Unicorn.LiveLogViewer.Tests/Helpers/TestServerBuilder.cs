@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Unicorn.LiveLogViewer.Tests.Helpers;
 
@@ -76,6 +77,7 @@ public class TestServerBuilder : IWebHostBuilder, IDisposable
     IWebHost IWebHostBuilder.Build()
     {
         var builder = WebApplication.CreateBuilder();
+        builder.Logging.SetMinimumLevel(LogLevel.Warning);
         foreach (var setupDelegate in _webApplicationBuilderSetupDelegates)
         {
             setupDelegate(builder);
