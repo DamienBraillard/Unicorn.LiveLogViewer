@@ -33,10 +33,12 @@
     <EnableRequestDelegateGenerator>true</EnableRequestDelegateGenerator>
   </PropertyGroup>
 
-  <PropertyGroup Label="Assembly Info">
+  <PropertyGroup Label="Assembly Info and Versioning">
     <Company>Soft Unicorn Sàrl</Company>
     <Product>Unicorn Live Log VIewer</Product>
     <Copyright>Copyright © Soft Unicorn Sàrl 2024-$([System.DateTime]::Now.Year)</Copyright>
+
+    <MinVerDefaultPreReleaseIdentifiers>preview</MinVerDefaultPreReleaseIdentifiers>
   </PropertyGroup>
 
   <ItemGroup Label="Assembly Info">
@@ -60,12 +62,15 @@
     <None Include="../../$(PackageReadmeFile)" Pack="true" PackagePath="" />
   </ItemGroup>
 
+  <ItemGroup Label="Nuget packages">
+    <PackageReference Include="MinVer" Version="5.0.0" PrivateAssets="all" />
+  </ItemGroup>
+
   <PropertyGroup Label="NuGet restore">
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <!-- https://devblogs.microsoft.com/nuget/enable-repeatable-package-restores-using-a-lock-file/#how-does-nuget-use-the-lock-file -->
     <RestoreLockedMode Condition="$(ContinuousIntegrationBuild) == 'true'">true</RestoreLockedMode>
   </PropertyGroup>
-
 
   <ItemGroup Label="Make internal types visible to unit tests">
     <!-- Make internal types visible to its test assembly ! -->
