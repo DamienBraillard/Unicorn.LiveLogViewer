@@ -39,10 +39,10 @@ jobs:
       - name: 👨‍🔧 Setup .NET Core SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: |
+          global-json-file: global.json
+          dotnet-version: | # Net 8 is installed through global.json file (see global.json file why)
             6.x
             7.x
-            8.x
 
       - name: ℹ️ Show dotnet details
         run: dotnet --info
