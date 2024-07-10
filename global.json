@@ -1,0 +1,26 @@
+/***********************************************************************************************************************
+* An explanation to why the .NET SDK version has to be locked to a specific version without roll-forward:
+* ====================================================================================================================
+*
+* Dotnet 8 AOT requires a "Microsoft.NET.ILLink.Tasks" package which version is tightly linked to the SDK version.
+* When restoring on a development machine (without lock-file), the "packages.lock.json" is updated wit the
+* "Microsoft.NET.ILLink.Tasks" version matching the used SDK version.
+*
+* When running the Continuous-Integration script runs, packages are restored using the lock-file in order
+* to achieve deterministic builds.
+*
+* If the version of the SDK used by the Continuous-Integration script does not match the version of the
+* "Microsoft.NET.ILLink.Tasks" package in the "packages.lock.json" file, then the build fails with the following error:
+*
+*  | error NU1004: The package reference Microsoft.NET.ILLink.Tasks version has changed from [8.0.x, ) to [8.0.y, ).
+*  | The packages lock file is inconsistent with the project dependencies so restore can't be run in locked mode.
+*
+* Sorry for the annoyance, but I have not yet found another solution
+***********************************************************************************************************************/
+
+{
+  "sdk": {
+    "rollForward": "disable", // Do not change, see file header
+    "version": "8.0.404"
+  }
+}

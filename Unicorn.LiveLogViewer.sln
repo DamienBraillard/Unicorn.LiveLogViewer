@@ -23,6 +23,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "meta", "meta", "{A2DF48CE-7
 		.gitattributes = .gitattributes
 		.editorconfig = .editorconfig
 		CHANGELOG.md = CHANGELOG.md
+		global.json = global.json
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{92AC1673-FD1E-47F4-9550-84855CB1DE39}"
