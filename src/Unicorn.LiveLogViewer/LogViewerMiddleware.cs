@@ -3,11 +3,13 @@ using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Template;
+using Microsoft.Extensions.Configuration.UserSecrets;
 using Unicorn.LiveLogViewer.Models;
 using Unicorn.LiveLogViewer.Sources;
 using LogViewerSerializerContext = Unicorn.LiveLogViewer.Models.LogViewerSerializerContext;
@@ -117,8 +119,7 @@ internal class LogViewerMiddleware : ILogViewerMiddleware
             return false;
 
         // Extract the parameters
-        if ((sourceId = routeValues["sourceId"] as string) is null)
-            return false;
+        sourceId = Uri.UnescapeDataString(routeValues["sourceId"]?.ToString()!);
 
         // Done
         return true;
@@ -159,4 +160,5 @@ internal class LogViewerMiddleware : ILogViewerMiddleware
         // Matches the path
         return GetLogSourcesMatcher.TryMatch(request.Path, []);
     }
+
 }

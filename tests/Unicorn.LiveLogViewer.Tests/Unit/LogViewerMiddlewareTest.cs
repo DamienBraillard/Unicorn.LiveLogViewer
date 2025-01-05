@@ -1,6 +1,8 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
+using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -41,10 +43,13 @@ public class LogViewerMiddlewareTest
 
     [Theory]
     [CombinatorialData]
-    public async Task InvokeAsync_ValidGetLogEventsPath_InvokesGetLogEventsAsync(bool requestPathHasTrailingSlash)
+    public async Task InvokeAsync_ValidGetLogEventsPath_InvokesGetLogEventsAsync(bool pathHasTrailingSlash, bool nameHasEscapedCharacters)
     {
         // Arrange
-        var context = CreateContext(path: requestPathHasTrailingSlash ? "/sources/my-source-id/" : "/sources/my-source-id");
+        var name = nameHasEscapedCharacters ? "my/source/id" : "my-source-id";
+        var requestPath = $"/sources/{Uri.EscapeDataString(name)}{(pathHasTrailingSlash ? "/" : "")}";
+
+        var context = CreateContext(path: requestPath);
 
         _target.WhenForAnyArgs(o => o.PublicGetLogEventsAsync(default!, default!, default)).DoNotCallBase();
 
@@ -57,10 +62,10 @@ public class LogViewerMiddlewareTest
 
     [Theory]
     [CombinatorialData]
-    public async Task InvokeAsync_ValidGetLogSourcesPath_InvokesGetLogSourcesAsync(bool requestPathHasTrailingSlash)
+    public async Task InvokeAsync_ValidGetLogSourcesPath_InvokesGetLogSourcesAsync(bool pathHasTrailingSlash)
     {
         // Arrange
-        var context = CreateContext(path: requestPathHasTrailingSlash ? "/sources/" : "/sources");
+        var context = CreateContext(path: pathHasTrailingSlash ? "/sources/" : "/sources");
 
         _target.WhenForAnyArgs(o => o.PublicGetLogSourcesAsync(default!, default)).DoNotCallBase();
 
