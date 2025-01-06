@@ -25,6 +25,10 @@
     CS0618: A referenced member is marked as obsolete
     -->
     <WarningsNotAsErrors>CS1030;CA2007</WarningsNotAsErrors>
+    <!--
+    SYSLIB1037: Init-only properties cannot be desrialized by System.Text.Json because of init only properties (We only serialize)
+    -->
+    <NoWarn Condition="'$(TargetFramework)' == 'net6.0'">SYSLIB1037</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Label="AOT" Condition="$(TargetFramework) != 'net6.0'">
