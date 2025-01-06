@@ -35,6 +35,9 @@
     <IsAotCompatible>true</IsAotCompatible>
     <StripSymbols>false</StripSymbols>
     <EnableRequestDelegateGenerator>true</EnableRequestDelegateGenerator>
+
+    <!-- Enable AOT for minimal apis through generators -->
+    <InterceptorsNamespaces>$(InterceptorsNamespaces);Microsoft.AspNetCore.Http.Generated</InterceptorsNamespaces>
   </PropertyGroup>
 
   <PropertyGroup Label="Assembly Info and Versioning">
@@ -77,6 +80,11 @@
     <InternalsVisibleTo Include="$(AssemblyName).Tests" />
     <!-- Make internal types visible to NSubstitute -->
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+  </ItemGroup>
+
+  <ItemGroup Label="Embed static content files as embedded resources">
+    <None Remove="StaticContent\LogViewer*.*" />
+    <EmbeddedResource Include="StaticContent\LogViewer*.*" />
   </ItemGroup>
 
   <!--
