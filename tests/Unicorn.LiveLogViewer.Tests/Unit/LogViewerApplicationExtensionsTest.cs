@@ -3,6 +3,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
+using Unicorn.LiveLogViewer.Endpoints;
 using Unicorn.LiveLogViewer.Tests.Helpers.AspNet;
 using Xunit;
 
@@ -155,7 +156,10 @@ public class LogViewerApplicationExtensionsTest
 
         // Assert
         var routes = endpointBuilder.GetRouteDetails();
-        routes.Should().HaveCount(1);
+        routes.Should().BeEquivalentTo(
+        [
+            new RouteDetails("/{*fileName}", ["GET"], StaticFilesEndpoint.Handle),
+        ]);
     }
 
     [Theory]

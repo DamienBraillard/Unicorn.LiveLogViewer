@@ -1,0 +1,1 @@
+﻿/* Empty custom script file to avoid 404 errors when none is specified */

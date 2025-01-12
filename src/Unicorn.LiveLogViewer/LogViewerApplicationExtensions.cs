@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Unicorn.LiveLogViewer.Endpoints;
 
 namespace Unicorn.LiveLogViewer;
 
@@ -76,7 +77,7 @@ public static class LogViewerApplicationExtensions
 
         // Maps the endpoints
         var group = endpointBuilder.MapGroup(basePath.TrimEnd('/')).ExcludeFromDescription();
-        group.MapGet("/", () => { }); // TODO Map real endpoints here
+        StaticFilesEndpoint.Map(group);
         return group;
     }
 }
