@@ -3,6 +3,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
+using Unicorn.LiveLogViewer.Sources;
 using Unicorn.LiveLogViewer.Tests.Helpers.AspNet;
 using Xunit;
 
@@ -10,6 +11,21 @@ namespace Unicorn.LiveLogViewer.Tests.Unit;
 
 public class LogViewerApplicationExtensionsTest
 {
+    [Theory]
+    [MemberData(nameof(AddOverloadTestCase.TheoryData), MemberType = typeof(AddOverloadTestCase))]
+    public void AddLiveLogViewer_AllOverloads_RegistersTheNullLogProviderAsSingleton(AddOverloadTestCase testCase)
+    {
+        // Arrange
+        var services = new ServiceCollection();
+
+        // Act
+        testCase.CallCorrectOverload(services);
+
+        // Assert
+        GetServiceAndVerifySingleton<ILogProvider>(services)
+            .Should().NotBeNull().And.BeOfType<NullLogProvider>();
+    }
+
     [Fact]
     public void AddLiveLogViewer_WithoutOptions_RegistersDefaultOptionsAsSingleton()
     {

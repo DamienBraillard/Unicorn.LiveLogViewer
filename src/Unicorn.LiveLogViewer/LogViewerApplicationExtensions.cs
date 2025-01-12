@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Unicorn.LiveLogViewer.Sources;
 
 namespace Unicorn.LiveLogViewer;
 
@@ -54,6 +55,7 @@ public static class LogViewerApplicationExtensions
         ArgumentNullException.ThrowIfNull(services);
 
         services.AddSingleton(optionsFactory);
+        services.AddSingleton<ILogProvider>(NullLogProvider.Default);
 
         return services;
     }
