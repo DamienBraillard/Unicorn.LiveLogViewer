@@ -1,0 +1,196 @@
+@layer reset, theme, layout, content, components, utility;
+
+/***********************************************************************************************************************
+* Reset                                                                                                                *
+***********************************************************************************************************************/
+@layer reset {
+    *, *::before, *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    html, body {
+        height: 100%;
+        width: 100%;
+    }
+
+    /* Set base font accessibility and defaults */
+    html {
+        font-size: 100%; /* 16px default */
+        line-height: 1.5;
+        -webkit-text-size-adjust: 100%;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Default body styling */
+    body {
+        margin: 0;
+        font-family: system-ui, sans-serif;
+        text-rendering: optimizeSpeed;
+    }
+
+    /* Remove list styles */
+    ul, ol {
+        list-style: none;
+    }
+
+    /* Remove default text decoration */
+    a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    /* Remove default images spacing */
+    img, picture {
+        max-width: 100%;
+        display: block;
+    }
+
+    /* Normalize form elements */
+    button, input, textarea, select {
+        font: inherit;
+    }
+
+    button, input {
+        border: none;
+        background: none;
+    }
+
+    /* Remove animations and transitions for users who prefer reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+        * {
+            animation: none !important;
+            transition: none !important;
+            scroll-behavior: auto !important;
+        }
+    }
+    body {
+        font-family: sans-serif;
+    }
+}
+
+/***********************************************************************************************************************
+* Theme                                                                                                                *
+***********************************************************************************************************************/
+@layer theme {
+    :root {
+        --theme-text: hsl(219, 13%, 80%);
+        --theme-header: hsl(219, 15%, 20%);
+        --theme-body: hsl(219, 13%, 15%);
+
+        --theme-control-border: hsl(219, 13%, 80%);
+        --theme-control-background: hsl(0, 0%, 30%);
+
+        --theme-primary: hsl(209, 28%, 50%);
+
+        --theme-level-contrast: #000000;
+        --theme-level-critical: hsl(294, 64%, 50%);
+        --theme-level-error: hsl(2, 64%, 50%);
+        --theme-level-warning: hsl(34, 64%, 50%);
+        --theme-level-info: hsl(199, 82%, 50%);
+        --theme-level-debug: hsl(120, 99%, 30%);
+        --theme-level-trace: hsl(0, 0%, 50%);
+    }
+}
+
+/***********************************************************************************************************************
+* Layout                                                                                                               *
+***********************************************************************************************************************/
+@layer layout {
+    body {
+        background: var(--theme-body);
+        color: var(--theme-text);
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    header {
+        background: var(--theme-header);
+        color: var(--theme-text);
+        height: 4rem;
+        padding: 0.5rem 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    main {
+        flex-grow: 1;
+        margin: 1rem;
+    }
+}
+
+/***********************************************************************************************************************
+* Content                                                                                                              *
+***********************************************************************************************************************/
+@layer content {
+
+    .icon {
+        font-style: normal;
+    }
+
+    .icon-critical::before {
+        content: "💥";
+    }
+
+    .icon-error::before {
+        content: "❌";
+    }
+
+    .icon-warning::before {
+        content: "⚠️";
+    }
+
+    .icon-info::before {
+        content: "ℹ️️";
+    }
+
+    .icon-debug::before {
+        content: "🪲️";
+    }
+
+    .icon-trace::before {
+        content: "📃";
+    }
+
+    .text-critical {
+        color: var(--theme-level-critical);
+    }
+
+    .text-error {
+        color: var(--theme-level-error);
+    }
+
+    .text-warning {
+        color: var(--theme-level-warning);
+    }
+
+    .text-info {
+        color: var(--theme-level-info);
+    }
+
+    .text-debug {
+        color: var(--theme-level-debug);
+    }
+
+    .text-trace {
+        color: var(--theme-level-trace);
+    }
+}
+
+/***********************************************************************************************************************
+* Components                                                                                                           *
+***********************************************************************************************************************/
+@layer components {
+
+}
+
+/***********************************************************************************************************************
+* Utility                                                                                                              *
+***********************************************************************************************************************/
+@layer utility {
+
+}

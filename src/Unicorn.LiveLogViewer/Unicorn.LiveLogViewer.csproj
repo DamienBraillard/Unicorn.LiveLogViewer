@@ -103,7 +103,17 @@
   ==================================================================================================
   -->
 
-  <Target Label="Embed Xml doc as embedded resource"  Name="EmbedDocumentation" BeforeTargets="PrepareForBuild">
+  <Target Label="Install requrired dotnet tools" Name="InstallDotnetTools" BeforeTargets="PrepareForBuild">
+    <!-- For reference: the file `.config/dotnet-tools.json` was created by running `dotnet new tool-manifest` -->
+    <Exec Command="dotnet tool restore" />
+  </Target>
+
+  <Target Label="Bundle html, js and css files" Name="BundleWebAssets" BeforeTargets="PrepareForBuild" AfterTargets="InstallDotnetTools">
+    <!-- For reference: the tool was installed by running `dotnet tool install BundlerMinifier.Core.Tool` -->
+    <Exec Command="dotnet bundle --no-color" />
+  </Target>
+
+  <Target Label="Embed Xml doc as embedded resource" Name="EmbedDocumentation" BeforeTargets="PrepareForBuild">
     <ItemGroup>
       <EmbeddedResource Include="@(DocFileItem)">
         <LogicalName>documentation.xml</LogicalName>
@@ -112,13 +122,12 @@
   </Target>
 
   <Target Label="Validates the NuGet package after packaging" Name="ValidateNuGetPackage" AfterTargets="Pack">
-    <!-- For reference: the file `.config/dotnet-tools.json` was created by running `dotnet new tool-manifest && dotnet tool install dotnet-validate` -->
-    <Exec Command="dotnet tool restore" />
+    <!-- For reference: the tool was installed by running `dotnet tool install dotnet-validate` -->
     <Exec Command="dotnet validate package local $([MSBuild]::EnsureTrailingSlash($(PackageOutputPath)))$(PackageId).$(PackageVersion).nupkg" EnvironmentVariables="DOTNET_ROLL_FORWARD=LatestMajor" />
   </Target>
 
   <ItemGroup Label="Framework references">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
-  
+
 </Project>

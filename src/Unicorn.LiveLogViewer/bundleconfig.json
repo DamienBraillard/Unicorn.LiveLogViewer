@@ -1,0 +1,40 @@
+[
+  {
+    "outputFileName": "StaticContent/LogViewer.html",
+    "inputFiles": [
+      "Web/App.html"
+    ],
+    "sourceMap": true,
+    "minify": {
+      // See: https://github.com/rwasef1830/BundlerMinifier/blob/raif/src/BundlerMinifier.Core/Minify/HtmlOptions.cs
+      "enabled": true
+    }
+  },
+  {
+    "outputFileName": "StaticContent/LogViewer.css",
+    "inputFiles": [
+      // Defined in the order they must appear in the bundle
+      "Web/App.css",
+      "Web/Components/**/*.css"
+    ],
+    "sourceMap": true,
+    "minify": {
+      // See: https://github.com/rwasef1830/BundlerMinifier/blob/raif/src/BundlerMinifier.Core/Minify/CssOptions.cs
+      "enabled": true
+    }
+  },
+  {
+    "outputFileName": "StaticContent/LogViewer.js",
+    "inputFiles": [
+      // Defined in the order they must appear in the bundle
+      "Web/Configuration.js",
+      "Web/Components/**/*.js",
+      "Web/App.js"
+    ],
+    "sourceMap": true,
+    "minify": {
+      // See: https://github.com/rwasef1830/BundlerMinifier/blob/raif/src/BundlerMinifier.Core/Minify/JavaScriptOptions.cs
+      "enabled": true
+    }
+  }
+]

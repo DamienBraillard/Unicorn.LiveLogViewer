@@ -8,6 +8,13 @@
         "dotnet-validate"
       ],
       "rollForward": false
+    },
+    "bundlerminifier.core.tool": {
+      "version": "7.6.0",
+      "commands": [
+        "bundle"
+      ],
+      "rollForward": false
     }
   }
 }

@@ -1,0 +1,70 @@
+
+/***********************************************************************************************************************
+* Log level filters                                                                                                    *
+***********************************************************************************************************************/
+@layer components {
+    ulv-log-level-filter {
+        display: flex;
+        flex-direction: row;
+        gap: 0.5rem;
+    }
+
+    ulv-log-level-filter label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.25rem;
+    }
+
+    ulv-log-level-filter input {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        position: relative;
+        font-size: inherit;
+        width: 2em;
+        height: 1em;
+        box-sizing: content-box;
+        border: 1px solid var(--theme-control-border);
+        border-radius: 1em;
+        vertical-align: text-bottom;
+        margin: auto;
+        background: var(--theme-control-background);
+        color: currentColor;
+        outline: none;
+        transition: background 200ms linear;
+    }
+
+    ulv-log-level-filter input:focus {
+        outline: 2px solid var(--theme-primary);
+    }
+
+    ulv-log-level-filter input:checked {
+        background: currentColor;
+    }
+
+    ulv-log-level-filter input::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 0;
+        transform: translate(0, -50%);
+        box-sizing: border-box;
+        width: 0.7em;
+        height: 0.7em;
+        margin: 0 0.15em;
+        border: 1px solid;
+        border-radius: 50%;
+        transition: left 200ms ease-in-out, color 200ms linear;
+        background: currentColor;
+    }
+
+    ulv-log-level-filter input:checked::before {
+        content: "";
+        padding-top: -3em;
+        left: 1em;
+        color: var(--theme-control-border)
+    }
+
+}
